@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom'; // Import the hook for navigation
 import './Login.css';
 
 const Login = () => {
@@ -6,6 +7,7 @@ const Login = () => {
     const [password, setPassword] = useState('');
     const [message, setMessage] = useState('');
     const [error, setError] = useState('');
+    const navigate = useNavigate(); // Initialize the navigate function
 
     const handleSubmit = async (event) => {
         event.preventDefault();
@@ -24,7 +26,8 @@ const Login = () => {
             const data = await response.json();
 
             if (response.ok) {
-                setMessage(data.message);
+                // On successful login, redirect the user to the /ai page
+                navigate('/ai');
             } else {
                 setError(data.error || 'An unknown error occurred.');
             }
@@ -71,4 +74,5 @@ const Login = () => {
 };
 
 export default Login;
+
 
