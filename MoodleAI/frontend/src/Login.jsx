@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom'; // Import the hook for navigation
+import { useNavigate } from 'react-router-dom';
 import './Login.css';
 
 const Login = () => {
@@ -7,7 +7,7 @@ const Login = () => {
     const [password, setPassword] = useState('');
     const [message, setMessage] = useState('');
     const [error, setError] = useState('');
-    const navigate = useNavigate(); // Initialize the navigate function
+    const navigate = useNavigate();
 
     const handleSubmit = async (event) => {
         event.preventDefault();
@@ -26,12 +26,13 @@ const Login = () => {
             const data = await response.json();
 
             if (response.ok) {
-                // On successful login, redirect the user to the /ai page
-                navigate('/ai');
+                // On successful login, navigate to the main courses dashboard
+                navigate('/courses', { state: { userId: data.userId, role: data.role, firstName: data.firstName } });
             } else {
                 setError(data.error || 'An unknown error occurred.');
             }
-        } catch (err) {
+        } catch (err)
+        {
             setError('Failed to connect to the server. Please try again later.');
             console.error("Fetch error:", err);
         }
@@ -74,5 +75,4 @@ const Login = () => {
 };
 
 export default Login;
-
 

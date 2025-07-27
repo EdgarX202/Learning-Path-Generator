@@ -1,44 +1,20 @@
-/* Custom styles for the AI Dashboard Page */
-
+/* --- CSS Reset and Body Padding for Fixed Navbar --- */
 html, body {
     margin: 0;
     padding: 0;
 }
 
-/* Add padding to the top of the body to prevent content from being hidden by the fixed navbar.
-   A standard Bootstrap navbar is 56px tall. We'll add a little extra for spacing. */
 body {
     padding-top: 70px;
 }
 
+.App {
+    height: auto !important;
+}
+
+/* --- Main Page Container --- */
 .ai-page-container {
-    background-color: #f8f9fa; /* A light grey background for the whole page */
-}
-
-/* --- Top Header Banner --- */
-.header-banner {
-    background-color: #fff;
-    padding: 1rem 0;
-    border-bottom: 1px solid #dee2e6;
-    margin-bottom: 2rem;
-}
-
-.skyline-banner {
-    background-color: #e9ecef; /* Placeholder color for the skyline area */
-    color: #343a40;
-    padding: 2rem;
-    border-radius: 0.25rem;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-}
-
-.skyline-banner h1 {
-    font-family: 'Trebuchet MS', 'Lucida Sans Unicode', 'Lucida Grande', 'Lucida Sans', Arial, sans-serif;
-    font-weight: bold;
-    font-size: 3rem;
-    margin: 0;
-    color: #495057;
+    background-color: #f8f9fa;
 }
 
 /* --- Main Content Sections --- */
@@ -50,7 +26,7 @@ body {
 }
 
 .section-header {
-    background-color: #4a5c6a; /* Dark teal from the image */
+    background-color: #4a5c6a;
     color: white;
     padding: 0.75rem 1.25rem;
     font-weight: 600;
@@ -62,22 +38,46 @@ body {
     padding: 1.25rem;
 }
 
-.course-list-item {
-    background-color: #f1f1f1;
-    padding: 1rem;
-    border-left: 5px solid #4a5c6a;
-    margin-bottom: 0.5rem;
+/* --- Styles for the "My Programme" info boxes --- */
+.programme-info-item {
+    background-color: #fff;
+    border-bottom: 1px solid #e9ecef;
+    padding: 0.5rem 1rem;
     display: flex;
-    justify-content: space-between;
     align-items: center;
-    font-weight: 500;
-    color: #0d6efd;
-    cursor: pointer;
-    transition: background-color 0.2s;
+    gap: 1rem;
 }
 
-.course-list-item:hover {
+.programme-info-item:last-child {
+    border-bottom: none;
+}
+
+.info-icon {
+    font-size: 1rem;
+    color: #4a5c6a;
     background-color: #e9ecef;
+    border-radius: 50%;
+    width: 2.5rem;
+    height: 2.5rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
+
+.info-text .info-title {
+    display: block;
+    font-size: 0.85rem;
+    color: #343a40;
+    font-weight: 600;
+    font-style: italic;
+}
+
+.info-text .info-content {
+    display: block;
+    font-weight: 400;
+    color: #212529;
+    margin-top: 0.1rem;
 }
 
 /* --- Sidebar Widgets --- */
@@ -89,7 +89,7 @@ body {
 }
 
 .widget-header {
-    background-color: #dc3545; /* Red from the image */
+    background-color: #dc3545;
     color: white;
     padding: 0.5rem 1rem;
     font-weight: 600;
@@ -102,7 +102,7 @@ body {
     padding: 1rem;
 }
 
-/* A simple calendar grid for the demo */
+/* --- Calendar --- */
 .calendar-grid {
     display: grid;
     grid-template-columns: repeat(7, 1fr);
@@ -110,17 +110,62 @@ body {
     text-align: center;
 }
 
-.calendar-grid > div {
-    padding: 5px;
+.calendar-grid > div { padding: 5px; }
+.calendar-day-name { font-weight: bold; font-size: 0.8rem; }
+.calendar-day-active { background-color: #dc3545; color: white; border-radius: 50%; }
+
+/* --- Styles for Course Accordion --- */
+.accordion-header {
+    background-color: #f1f1f1;
+    padding: 1rem;
+    border-left: 5px solid #4a5c6a;
+    font-weight: 500;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    transition: background-color 0.2s;
 }
 
-.calendar-day-name {
-    font-weight: bold;
-    font-size: 0.8rem;
+.accordion-header:hover {
+    background-color: #e9ecef;
 }
 
-.calendar-day-active {
-    background-color: #dc3545;
-    color: white;
-    border-radius: 50%;
+.accordion-icon {
+    font-size: 1rem;
+    transition: transform 0.2s ease-in-out;
 }
+
+.accordion-icon.open {
+    transform: rotate(90deg);
+}
+
+.accordion-content {
+    padding: 0;
+    border: 1px solid #dee2e6;
+    border-top: none;
+}
+
+.accordion-content ul {
+    list-style-type: none;
+    padding-left: 0;
+    margin: 0;
+}
+
+.accordion-content li {
+    padding: 0.75rem 1.25rem 0.75rem 3.5rem; /* Increased left padding */
+    border-bottom: 1px solid #e9ecef;
+    cursor: pointer;
+    font-size: 0.9rem; /* Made font smaller */
+}
+
+.accordion-content li:last-child {
+    border-bottom: none;
+}
+
+.accordion-content li:hover {
+    background-color: #f8f9fa;
+}
+
+
+
