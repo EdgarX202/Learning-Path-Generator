@@ -43,6 +43,22 @@ const CourseAccordionItem = ({ course }) => {
         if (lowerModuleName.includes('software testing and quality assurance')) return '/softeng/testqa';
         if (lowerModuleName.includes('project management and devops')) return '/softeng/projectmgmnt';
 
+        // Specific module pages for Artificial Intelligence
+        if (lowerModuleName.includes('introduction to ai and intelligent agents')) return '/ai/intro';
+        if (lowerModuleName.includes('problem solving with search')) return '/ai/problemsolving';
+        if (lowerModuleName.includes('knowledge representation and logic')) return '/ai/knowledgerep';
+        if (lowerModuleName.includes('introduction to machine learning')) return '/ai/introtoml';
+        if (lowerModuleName.includes('natural language processing')) return '/ai/nlp';
+        if (lowerModuleName.includes('ai ethics and the future')) return '/ai/ethics';
+
+        // Specific module pages for Website Development
+        if (lowerModuleName.includes('html fundamentals')) return '/webdev/intro';
+        if (lowerModuleName.includes('advanced css and layouts')) return '/webdev/csslayouts';
+        if (lowerModuleName.includes('javascript fundamentals')) return '/webdev/jsfund';
+        if (lowerModuleName.includes('dom manipulation and events')) return '/webdev/dom';
+        if (lowerModuleName.includes('introduction to backend development')) return '/webdev/introtobackend';
+        if (lowerModuleName.includes('final project: build a web app')) return '/webdev/finalproject';
+
         return '#';
     };
     return (

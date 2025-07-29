@@ -40,12 +40,27 @@ function App() {
             <Route path="/ai" element={<ProtectedRoute><AI /></ProtectedRoute>} />
 
             {/* --- New Module Routes --- */}
+            {/* --- Software Engineering --- */}
             <Route path="/softeng/intro" element={<ProtectedRoute><Intro /></ProtectedRoute>} />
             <Route path="/softeng/reqeng" element={<ProtectedRoute><ReqEng /></ProtectedRoute>} />
             <Route path="/softeng/sdarchitecture" element={<ProtectedRoute><SDArchitecture /></ProtectedRoute>} />
             <Route path="/softeng/codingstandards" element={<ProtectedRoute><CodingStandards /></ProtectedRoute>} />
             <Route path="/softeng/testqa" element={<ProtectedRoute><TestQA /></ProtectedRoute>} />
             <Route path="/softeng/projectmgmnt" element={<ProtectedRoute><ProjectMgmnt /></ProtectedRoute>} />
+            {/* --- Artificial Intelligence --- */}
+            <Route path="/ai/intro" element={<ProtectedRoute><Intro /></ProtectedRoute>} />
+            <Route path="/ai/problemsolving" element={<ProtectedRoute><ReqEng /></ProtectedRoute>} />
+            <Route path="/ai/ethics" element={<ProtectedRoute><SDArchitecture /></ProtectedRoute>} />
+            <Route path="/ai/introtoml" element={<ProtectedRoute><CodingStandards /></ProtectedRoute>} />
+            <Route path="/ai/knowledgerep" element={<ProtectedRoute><TestQA /></ProtectedRoute>} />
+            <Route path="/ai/nlp" element={<ProtectedRoute><ProjectMgmnt /></ProtectedRoute>} />
+            {/* --- Website Development --- */}
+            <Route path="/webdev/intro" element={<ProtectedRoute><Intro /></ProtectedRoute>} />
+            <Route path="/webdev/csslayouts" element={<ProtectedRoute><ReqEng /></ProtectedRoute>} />
+            <Route path="/webdev/dom" element={<ProtectedRoute><SDArchitecture /></ProtectedRoute>} />
+            <Route path="/webdev/finalproject" element={<ProtectedRoute><CodingStandards /></ProtectedRoute>} />
+            <Route path="/webdev/introtobackend" element={<ProtectedRoute><TestQA /></ProtectedRoute>} />
+            <Route path="/webdev/jsfund" element={<ProtectedRoute><ProjectMgmnt /></ProtectedRoute>} />
 
           </Routes>
         </div>
