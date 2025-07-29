@@ -4,10 +4,12 @@ html, body {
     padding: 0;
 }
 
-body {
-    padding-top: 70px;
-}
+/* This is the most reliable way to prevent the fixed navbar from overlapping content.
+   It ensures the main browser scrollbar works correctly. */
 
+
+
+/* This new rule overrides conflicting styles to fix the scrolling issue */
 .App {
     height: auto !important;
 }
@@ -89,7 +91,7 @@ body {
 }
 
 .widget-header {
-    background-color: #dc3545;
+    background-color: #4A4C6A;
     color: white;
     padding: 0.5rem 1rem;
     font-weight: 600;
@@ -112,7 +114,7 @@ body {
 
 .calendar-grid > div { padding: 5px; }
 .calendar-day-name { font-weight: bold; font-size: 0.8rem; }
-.calendar-day-active { background-color: #dc3545; color: white; border-radius: 50%; }
+.calendar-day-active { background-color: #3E8C28; color: white; border-radius: 50%; }
 
 /* --- Styles for Course Accordion --- */
 .accordion-header {

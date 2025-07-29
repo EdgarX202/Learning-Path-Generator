@@ -1,9 +1,9 @@
 import React, { useState, useEffect } from 'react';
-import { useLocation, useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
+import { useAuth } from '../AuthContext.jsx'; // Import the useAuth hook
 import './Courses.css';
 import { FaBell, FaCheckCircle, FaUserCircle, FaSignOutAlt, FaQuestionCircle, FaFileAlt, FaChevronRight } from 'react-icons/fa';
 
-// This new component handles the logic for each collapsible course item
 const CourseAccordionItem = ({ course }) => {
     const [isOpen, setIsOpen] = useState(false);
     const [modules, setModules] = useState([]);
@@ -13,8 +13,6 @@ const CourseAccordionItem = ({ course }) => {
     const handleToggle = async () => {
         const newIsOpen = !isOpen;
         setIsOpen(newIsOpen);
-
-        // Fetch modules only when opening for the first time
         if (newIsOpen && modules.length === 0) {
             setIsLoading(true);
             try {
@@ -24,21 +22,17 @@ const CourseAccordionItem = ({ course }) => {
                 setModules(data);
             } catch (error) {
                 console.error("Error fetching modules:", error);
-                // Optionally set an error state to display to the user
             } finally {
                 setIsLoading(false);
             }
         }
     };
-
-    // Helper function to get the correct path for each course
     const getModulePath = (moduleName) => {
         if (moduleName.toLowerCase().includes('software engineering')) return '/softeng';
         if (moduleName.toLowerCase().includes('website development')) return '/webdev';
         if (moduleName.toLowerCase().includes('artificial intelligence')) return '/ai';
-        return '#'; // Fallback for modules without a dedicated page
+        return '#';
     };
-
     return (
         <div className="course-accordion">
             <div className="accordion-header" onClick={handleToggle}>
@@ -47,9 +41,7 @@ const CourseAccordionItem = ({ course }) => {
             </div>
             {isOpen && (
                 <div className="accordion-content">
-                    {isLoading ? (
-                        <p className="p-3">Loading modules...</p>
-                    ) : (
+                    {isLoading ? (<p className="p-3">Loading modules...</p>) : (
                         <ul>
                             {modules.length > 0 ? (
                                 modules.map(module => (
@@ -67,7 +59,6 @@ const CourseAccordionItem = ({ course }) => {
         </div>
     );
 };
-
 
 const CalendarWidget = () => (
     <div className="sidebar-widget">
@@ -87,37 +78,34 @@ const CalendarWidget = () => (
 const Courses = () => {
     const [courses, setCourses] = useState([]);
     const [error, setError] = useState('');
-    const location = useLocation();
     const navigate = useNavigate();
-
-    const { userId, firstName } = location.state || {};
+    const { user, logout } = useAuth(); // Get user and logout from the context
 
     const programmeInfo = [
-        { icon: <FaQuestionCircle />, title: 'Programme Level', content: 'Moderate' },
+        { icon: <FaQuestionCircle />, title: 'Programme Level', content: 'BSc - Year 2' },
         { icon: <FaFileAlt />, title: 'Programme Information', content: 'TBC' },
-        { icon: <FaUserCircle />, title: 'Main Contant', content: 'Teslania Musketeer' },
-        { icon: <FaUserCircle />, title: 'Personal Support Assistant', content: 'Nio Maximiliamus' }
+        { icon: <FaUserCircle />, title: 'Main Contact', content: 'Teslania Musketeer (T.Musketeer@edu.ac.uk)' },
+        { icon: <FaUserCircle />, title: 'Personal Development Contact', content: 'Nio Maximiliamus (N.Maximiliamus@edu.ac.uk)' }
     ];
 
     useEffect(() => {
-        if (!userId) {
-            setError("Could not verify user. Please log in again.");
-            return;
+        if (user?.userId) {
+            const fetchCourses = async () => {
+                try {
+                    const response = await fetch(`http://127.0.0.1:5001/api/courses?userId=${user.userId}`);
+                    if (!response.ok) throw new Error('Failed to fetch courses.');
+                    const data = await response.json();
+                    setCourses(data);
+                } catch (err) {
+                    setError(err.message);
+                }
+            };
+            fetchCourses();
         }
-        const fetchCourses = async () => {
-            try {
-                const response = await fetch(`http://127.0.0.1:5001/api/courses?userId=${userId}`);
-                if (!response.ok) throw new Error('Failed to fetch courses.');
-                const data = await response.json();
-                setCourses(data);
-            } catch (err) {
-                setError(err.message);
-            }
-        };
-        fetchCourses();
-    }, [userId]);
+    }, [user]); // Re-run the effect if the user object changes
 
     const handleLogout = () => {
+        logout(); // Call the logout function from the context
         navigate('/login');
     };
 
@@ -129,7 +117,7 @@ const Courses = () => {
                     <div className="d-flex align-items-center text-white">
                         <FaBell className="me-3" />
                         <FaUserCircle className="me-2" />
-                        <span>{firstName || 'User'}</span>
+                        <span>{user?.firstName || 'User'}</span> {/* Get name from context */}
                         <button className="btn btn-outline-light btn-sm ms-3" onClick={handleLogout}>
                             <FaSignOutAlt className="me-1" /> Logout
                         </button>
@@ -157,7 +145,7 @@ const Courses = () => {
 
                         <section className="content-section">
                             <div className="section-header">Course Overview</div>
-                            <div className="section-body p-0"> {/* Remove padding for flush accordion */}
+                            <div className="section-body p-0">
                                 {error && <div className="alert alert-danger m-3">{error}</div>}
                                 {courses.length > 0 ? (
                                     courses.map(course => (
@@ -174,13 +162,12 @@ const Courses = () => {
                         <CalendarWidget />
                         <div className="sidebar-widget">
                             <div className="widget-header">Upcoming Events</div>
-                            <div className="widget-body"><p>No upcoming events.</p></div>
+                            <div className="widget-body text-center"><p>No events available.</p></div>
                         </div>
                         <div className="sidebar-widget">
-                            <div className="widget-header">My Module Evaluations</div>
+                            <div className="widget-header">Module Evaluations</div>
                             <div className="widget-body text-center">
-                                <FaCheckCircle size={40} className="text-success mb-2" />
-                                <p>No open surveys.</p>
+                                <p>No surveys available.</p>
                             </div>
                         </div>
                     </aside>
