@@ -28,9 +28,21 @@ const CourseAccordionItem = ({ course }) => {
         }
     };
     const getModulePath = (moduleName) => {
-        if (moduleName.toLowerCase().includes('software engineering')) return '/softeng';
-        if (moduleName.toLowerCase().includes('website development')) return '/webdev';
-        if (moduleName.toLowerCase().includes('artificial intelligence')) return '/ai';
+        const lowerModuleName = moduleName.toLowerCase();
+
+        // Main course pages (this logic is for navigating from the course title itself, which we aren't doing right now)
+        if (lowerModuleName.includes('software engineering') && modules.length === 0) return '/softeng';
+        if (lowerModuleName.includes('website development')) return '/webdev';
+        if (lowerModuleName.includes('artificial intelligence')) return '/ai';
+
+        // Specific module pages for Software Engineering
+        if (lowerModuleName.includes('introduction to the software lifecycle')) return '/softeng/intro';
+        if (lowerModuleName.includes('requirements engineering')) return '/softeng/reqeng';
+        if (lowerModuleName.includes('software design and architecture')) return '/softeng/sdarchitecture';
+        if (lowerModuleName.includes('implementation and coding standards')) return '/softeng/codingstandards';
+        if (lowerModuleName.includes('software testing and quality assurance')) return '/softeng/testqa';
+        if (lowerModuleName.includes('project management and devops')) return '/softeng/projectmgmnt';
+
         return '#';
     };
     return (
