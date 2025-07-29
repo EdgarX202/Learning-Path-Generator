@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '../../AuthContext.jsx';
 import '../Modules.css'; // Imports the stylesheet from the Canvas
 import { FaBell, FaUserCircle, FaSignOutAlt, FaChevronRight, FaCode } from 'react-icons/fa';
@@ -69,7 +69,7 @@ const Intro = () => {
         <div className="ai-page-container">
             <nav className="navbar navbar-expand-lg navbar-dark bg-dark fixed-top">
                 <div className="container-fluid">
-                    <a className="navbar-brand" href="/courses">Moodle AI</a> {/* Link back to dashboard */}
+                    <Link className="navbar-brand" to="/courses">Moodle AI</Link> {/* Link back to dashboard */}
                     <div className="d-flex align-items-center text-white">
                         <FaBell className="me-3" />
                         <FaUserCircle className="me-2" />
