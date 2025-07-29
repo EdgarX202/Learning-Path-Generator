@@ -161,13 +161,13 @@ const Courses = () => {
                     <aside className="col-lg-3">
                         <CalendarWidget />
                         <div className="sidebar-widget">
-                            <div className="widget-header">Upcoming Events</div>
-                            <div className="widget-body text-center"><p>No events available.</p></div>
+                            <div className="widget-header">Latest Announcements</div>
+                            <div className="widget-body text-center"><p>No new announcements.</p></div>
                         </div>
                         <div className="sidebar-widget">
-                            <div className="widget-header">Module Evaluations</div>
+                            <div className="widget-header">Coursework Deadlines</div>
                             <div className="widget-body text-center">
-                                <p>No surveys available.</p>
+                                <p>No deadlines published.</p>
                             </div>
                         </div>
                     </aside>

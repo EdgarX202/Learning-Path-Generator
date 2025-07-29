@@ -117,6 +117,14 @@ html, body {
 .calendar-day-active { background-color: #3E8C28; color: white; border-radius: 50%; }
 
 /* --- Styles for Course Accordion --- */
+.course-accordion {
+    margin-bottom: 0.5rem; /* Adds space between each course item */
+}
+
+.course-accordion:last-child {
+    margin-bottom: 0; /* Removes margin from the last item for a cleaner look */
+}
+
 .accordion-header {
     background-color: #f1f1f1;
     padding: 1rem;
