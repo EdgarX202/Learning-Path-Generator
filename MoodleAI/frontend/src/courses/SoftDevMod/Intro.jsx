@@ -162,7 +162,7 @@ const Intro = () => {
             title: 'Week 11 - Revision',
             content: {
                 theory: 'Content goes here...',
-                practical: 'Revisit previous practicals...'
+                practical: 'Content goes here...'
             }
         },
         {
@@ -187,36 +187,45 @@ const Intro = () => {
                 </div>
             </nav>
 
-            <div className="container-fluid p-4" style={{ marginTop: '56px' }}>
-                <div className="row">
-                    <main className="col-lg-9">
-                         <div className="module-title-header">
-                            <FaCode className="icon" />
-                            <h2 className="mb-0">Introduction to the Software Lifecycle</h2>
-                        </div>
-                        {weeklyTopics.map((topic, index) => (
-                            <WeekAccordionItem key={index} topic={topic} startOpen={index === 0} />
-                        ))}
-                    </main>
+            <div className="page-content"> {/* Wrapper for main content */}
+                <div className="container-fluid p-4" style={{ marginTop: '56px' }}>
+                    <div className="row">
+                        <main className="col-lg-9">
+                             <div className="module-title-header">
+                                <FaCode className="icon" />
+                                <h2 className="mb-0">Introduction to the Software Lifecycle</h2>
+                            </div>
+                            {weeklyTopics.map((topic, index) => (
+                                <WeekAccordionItem key={index} topic={topic} startOpen={index === 0} />
+                            ))}
+                        </main>
 
-                    <aside className="col-lg-3">
-                        <CalendarWidget />
-                        <div className="sidebar-widget">
-                            <div className="widget-header">Colour Notes</div>
-                            <div className="widget-body">
-                                <p>Add your notes for this module...</p>
-                                <p>"different colour stickers here ?"</p>
+                        <aside className="col-lg-3">
+                            <CalendarWidget />
+                            <div className="sidebar-widget">
+                                <div className="widget-header">Colour Notes</div>
+                                <div className="widget-body">
+                                    <p>Add your notes for this module...</p>
+                                    <p>"different colour stickers here ?"</p>
+                                </div>
                             </div>
-                        </div>
-                        <div className="sidebar-widget">
-                            <div className="widget-header-AI">Learning Path Gen - AI Assistant</div>
-                            <div className="widget-body">
-                                <p>Under Construction</p>
+                            <div className="sidebar-widget">
+                                <div className="widget-header-AI">Learning Path Gen - AI Assistant</div>
+                                <div className="widget-body">
+                                    <p>Under Construction</p>
+                                </div>
                             </div>
-                        </div>
-                    </aside>
+                        </aside>
+                    </div>
                 </div>
             </div>
+
+            <footer className="page-footer">
+                <div className="container">
+                    <p>&copy; {new Date().getFullYear()} Edgar Park | ENU. All Rights Reserved.</p>
+                    <p><Link to="/privacy">Privacy Policy</Link> | <Link to="/terms">Terms of Service</Link></p>
+                </div>
+            </footer>
         </div>
     );
 };

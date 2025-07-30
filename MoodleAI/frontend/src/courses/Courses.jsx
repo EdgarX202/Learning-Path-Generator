@@ -201,6 +201,12 @@ const Courses = () => {
                     </aside>
                 </div>
             </div>
+            <footer className="page-footer">
+                <div className="container">
+                    <p>&copy; {new Date().getFullYear()} Edgar Park | ENU. All Rights Reserved.</p>
+                    <p><Link to="/privacy">Privacy Policy</Link> | <Link to="/terms">Terms of Service</Link></p>
+                </div>
+            </footer>
         </div>
     );
 };

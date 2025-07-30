@@ -139,3 +139,22 @@
     font-size: 1.5rem;
 }
 
+/* --- NEW Footer Styles --- */
+.page-footer {
+    background-color: #343a40; /* A dark color similar to the navbar */
+    color: #adb5bd; /* A light grey for the text */
+    padding: 2rem 0;
+    text-align: center;
+    margin-top: auto; /* Pushes the footer to the bottom */
+    font-size: 0.9rem;
+}
+
+.page-footer a {
+    color: #fff;
+    text-decoration: none;
+}
+
+.page-footer a:hover {
+    text-decoration: underline;
+}
+
