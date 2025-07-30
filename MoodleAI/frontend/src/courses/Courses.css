@@ -177,6 +177,16 @@ html, body {
     background-color: #f8f9fa;
 }
 
+/* --- NEW Styles for the Left Sidebar Image --- */
+.left-sidebar-image {
+    width: auto;
+    height: calc(100vh - 56px); /* Full viewport height minus the navbar height */
+    object-fit: cover; /* Prevents the image from stretching */
+    position: sticky;
+    top: 56px; /* Sticks to the bottom of the navbar */
+
+}
+
 /* --- NEW Footer Styles --- */
 .page-footer {
     background-color: #343a40; /* A dark color similar to the navbar */

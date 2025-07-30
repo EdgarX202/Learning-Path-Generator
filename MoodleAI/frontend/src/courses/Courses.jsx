@@ -155,7 +155,13 @@ const Courses = () => {
 
             <div className="container-fluid p-4" style={{ marginTop: '56px' }}>
                 <div className="row">
-                    <aside className="col-lg-1"></aside> {/* <----- EMPTY LEFT COLUMN HERE */}
+                    <aside className="col-lg-1">
+                        <img
+                                src="../../public/21.jpg"
+                                alt="Some Image"
+                                className="left-sidebar-image"
+                            />
+                        </aside> {/* <----- EMPTY LEFT COLUMN HERE */}
                     <main className="col-lg-8">
                         <section className="content-section">
                             <div className="section-header">My Programme</div>

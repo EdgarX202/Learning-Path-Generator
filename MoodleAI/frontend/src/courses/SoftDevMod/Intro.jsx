@@ -86,7 +86,7 @@ const Intro = () => {
     const weeklyTopics = [
         {
             title: 'General/Announcements',
-            content: 'Theory will be introduced by a lecturer, and practicals will be introduced by the AI assistant? (probably future work).'
+            content: 'Theory will be introduced by a lecturer, and practicals will be introduced by the AI assistant based on the theory provided? (probably future work, manual upload for now).'
         },
         {
             title: 'Week 1 - Understanding The Module',
@@ -190,7 +190,13 @@ const Intro = () => {
             <div className="page-content"> {/* Wrapper for main content */}
                 <div className="container-fluid p-4" style={{ marginTop: '56px' }}>
                     <div className="row">
-                        <aside className="col-lg-1"></aside> {/* <----- EMPTY LEFT COLUMN HERE */}
+                        <aside className="d-none d-lg-block col-lg-1">
+                            <img
+                                src="../../public/21.jpg"
+                                alt="Some Image"
+                                className="left-sidebar-image"
+                            />
+                            </aside> {/* <----- EMPTY LEFT COLUMN HERE */}
                         <main className="col-lg-8">
                              <div className="module-title-header">
                                 <FaCode className="icon" />
