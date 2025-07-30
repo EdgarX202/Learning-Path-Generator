@@ -155,7 +155,8 @@ const Courses = () => {
 
             <div className="container-fluid p-4" style={{ marginTop: '56px' }}>
                 <div className="row">
-                    <main className="col-lg-9">
+                    <aside className="col-lg-1"></aside> {/* <----- EMPTY LEFT COLUMN HERE */}
+                    <main className="col-lg-8">
                         <section className="content-section">
                             <div className="section-header">My Programme</div>
                             <div className="section-body p-0">
