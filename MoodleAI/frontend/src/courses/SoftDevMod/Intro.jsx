@@ -1,11 +1,32 @@
 import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
-import { useAuth } from '../../AuthContext.jsx';
-import '../Modules.css'; // Imports the stylesheet from the Canvas
+import { useAuth } from '../../AuthContext.jsx'; // Corrected path
+import '../Modules.css'; // Corrected path
 import { FaBell, FaUserCircle, FaSignOutAlt, FaChevronRight, FaCode } from 'react-icons/fa';
 
+// New, smaller accordion component for the nested items
+const SubAccordionItem = ({ title, children }) => {
+    const [isOpen, setIsOpen] = useState(false);
+    const toggleOpen = () => setIsOpen(!isOpen);
+
+    return (
+        <div className="sub-accordion-item">
+            <div className="sub-accordion-header" onClick={toggleOpen}>
+                <FaChevronRight className={`accordion-icon ${isOpen ? 'open' : ''}`} />
+                <span>{title}</span>
+            </div>
+            {isOpen && (
+                <div className="sub-accordion-content">
+                    {children}
+                </div>
+            )}
+        </div>
+    );
+};
+
+
 // Reusable Accordion Item for the weekly content
-const WeekAccordionItem = ({ title, children, startOpen = false }) => {
+const WeekAccordionItem = ({ topic, startOpen = false }) => {
     const [isOpen, setIsOpen] = useState(startOpen);
     const toggleOpen = () => setIsOpen(!isOpen);
 
@@ -13,11 +34,23 @@ const WeekAccordionItem = ({ title, children, startOpen = false }) => {
         <div className="week-accordion-item">
             <div className="week-accordion-header" onClick={toggleOpen}>
                 <FaChevronRight className={`accordion-icon ${isOpen ? 'open' : ''}`} />
-                <span>{title}</span>
+                <span>{topic.title}</span>
             </div>
             {isOpen && (
                 <div className="week-accordion-content">
-                    {children}
+                    {/* Conditional rendering based on the type of content */}
+                    {typeof topic.content === 'string' ? (
+                        <div className="p-3">{topic.content}</div>
+                    ) : (
+                        <>
+                            <SubAccordionItem title="Theory">
+                                <p>{topic.content.theory}</p>
+                            </SubAccordionItem>
+                            <SubAccordionItem title="Practical">
+                                <p>{topic.content.practical}</p>
+                            </SubAccordionItem>
+                        </>
+                    )}
                 </div>
             )}
         </div>
@@ -49,20 +82,93 @@ const Intro = () => {
         navigate('/login');
     };
 
+    // Updated data structure
     const weeklyTopics = [
-        { title: 'General/Announcements', content: 'Theory introduced by a lecturer. Practical introduced by AI' },
-        { title: 'Week 1 - Understanding The Module', content: 'Content goes here...' },
-        { title: 'Week 2 - Data & Operations', content: 'Content goes here...' },
-        { title: 'Week 3 - Control Flow', content: 'Content goes here...' },
-        { title: 'Week 4 - Collections', content: 'Content goes here...' },
-        { title: 'Week 5 - Functions & Modularity', content: 'Content goes here...' },
-        { title: 'Week 6 - Introduction to OOP', content: 'Content goes here...' },
-        { title: 'Week 7 - Advanced Collections', content: 'Content goes here....' },
-        { title: 'Week 7 - Error Handling & Debugging', content: 'Content goes here....' },
-        { title: 'Week 9 - Introduction to Software Testing', content: 'Content goes here...' },
-        { title: 'Week 10 - Version Control with Git & GitHub', content: 'Content goes here...' },
-        { title: 'Week 11 - Revision', content: 'Content goes here...' },
-        { title: 'Final Project', content: 'Content goes here...' }
+        {
+            title: 'General/Announcements',
+            content: 'General announcements and an overview of the module structure. Theory will be introduced by a lecturer, and practical exercises will be introduced by the AI assistant.'
+        },
+        {
+            title: 'Week 1 - Understanding The Module',
+            content: {
+                theory: 'Content goes here...',
+                practical: 'Content goes here...'
+            }
+        },
+        {
+            title: 'Week 2 - Data & Operations',
+            content: {
+                theory: 'Content goes here...',
+                practical: 'Content goes here...'
+            }
+        },
+        {
+            title: 'Week 3 - Control Flow',
+            content: {
+                theory: 'Content goes here...',
+                practical: 'Content goes here...'
+            }
+        },
+        {
+            title: 'Week 4 - Collections',
+            content: {
+                theory: 'Content goes here...',
+                practical: 'Content goes here...'
+            }
+        },
+        {
+            title: 'Week 5 - Functions & Modularity',
+            content: {
+                theory: 'Content goes here...',
+                practical: 'Content goes here...'
+            }
+        },
+        {
+            title: 'Week 6 - Introduction to OOP',
+            content: {
+                theory: 'Content goes here...',
+                practical: 'Content goes here...'
+            }
+        },
+        {
+            title: 'Week 7 - Advanced Collections',
+            content: {
+                theory: 'Content goes here...',
+                practical: 'Content goes here...'
+            }
+        },
+        {
+            title: 'Week 8 - Error Handling & Debugging',
+            content: {
+                theory: 'Content goes here...',
+                practical: 'Content goes here...'
+            }
+        },
+        {
+            title: 'Week 9 - Introduction to Software Testing',
+            content: {
+                theory: 'Content goes here...',
+                practical: 'Content goes here...'
+            }
+        },
+        {
+            title: 'Week 10 - Version Control with Git & GitHub',
+            content: {
+                theory: 'Content goes here...',
+                practical: 'Content goes here...'
+            }
+        },
+        {
+            title: 'Week 11 - Revision',
+            content: {
+                theory: 'Content goes here...',
+                practical: 'Revisit previous practicals...'
+            }
+        },
+        {
+            title: 'Final Project',
+            content: 'Details about the final project requirements, submission guidelines, and marking criteria.'
+        },
     ];
 
     return (
@@ -86,21 +192,26 @@ const Intro = () => {
                     <main className="col-lg-9">
                          <div className="module-title-header">
                             <FaCode className="icon" />
-                            <h2 className="mb-0">Software Engineering Module</h2>
+                            <h2 className="mb-0">Introduction to the Software Lifecycle</h2>
                         </div>
                         {weeklyTopics.map((topic, index) => (
-                            <WeekAccordionItem key={index} title={topic.title}>
-                                <p>{topic.content}</p>
-                            </WeekAccordionItem>
+                            <WeekAccordionItem key={index} topic={topic} startOpen={index === 0} />
                         ))}
                     </main>
 
                     <aside className="col-lg-3">
                         <CalendarWidget />
                         <div className="sidebar-widget">
-                            <div className="widget-header">Module Resources</div>
+                            <div className="widget-header">Colour Notes</div>
                             <div className="widget-body">
-                                <p>Links to reading lists, past papers, etc.</p>
+                                <p>Add your notes for this module...</p>
+                                <p>"different colour stickers here ?"</p>
+                            </div>
+                        </div>
+                        <div className="sidebar-widget">
+                            <div className="widget-header-AI">Learning Path Gen - AI Assistant</div>
+                            <div className="widget-body">
+                                <p>Under Construction</p>
                             </div>
                         </div>
                     </aside>
