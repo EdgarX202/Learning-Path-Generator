@@ -92,11 +92,11 @@ const CalendarWidget = () => (
     <div className="sidebar-widget">
         <div className="widget-header">Calendar</div>
         <div className="widget-body">
-            <div className="text-center mb-2 fw-bold">July 2025</div>
+            <div className="text-center mb-2 fw-bold">August 2025</div>
             <div className="calendar-grid">
                 {['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'].map(day => <div key={day} className="calendar-day-name">{day}</div>)}
                 {Array.from({ length: 31 }, (_, i) => i + 1).map(day => (
-                    <div key={day} className={day === 27 ? 'calendar-day-active' : ''}>{day}</div>
+                    <div key={day} className={day === 8 ? 'calendar-day-active' : ''}>{day}</div>
                 ))}
             </div>
         </div>

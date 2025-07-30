@@ -1,8 +1,129 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '../../AuthContext.jsx'; // Corrected path
 import '../Modules.css'; // Corrected path
-import { FaBell, FaUserCircle, FaSignOutAlt, FaChevronRight, FaCode } from 'react-icons/fa';
+import { FaBell, FaUserCircle, FaSignOutAlt, FaChevronRight, FaCode, FaTimes } from 'react-icons/fa';
+
+const ColourNotesWidget = ({ moduleId }) => {
+    const { user } = useAuth();
+    const [notes, setNotes] = useState([]);
+    const [newNote, setNewNote] = useState('');
+    const [error, setError] = useState('');
+    const [selectedColor, setSelectedColor] = useState('yellow');
+    const colors = ['yellow', 'blue', 'green', 'purple', 'orange', 'cyan'];
+    const MAX_NOTES = 12;
+
+    useEffect(() => {
+        if (user?.userId && moduleId) {
+            const fetchNotes = async () => {
+                try {
+                    const response = await fetch(`http://127.0.0.1:5001/api/notes?userId=${user.userId}&moduleId=${moduleId}`);
+                    const data = await response.json();
+                    if (response.ok) {
+                        setNotes(data);
+                    } else {
+                        console.error("Failed to fetch notes:", data.error);
+                    }
+                } catch (error) {
+                    console.error("Error fetching notes:", error);
+                }
+            };
+            fetchNotes();
+        }
+    }, [user, moduleId]);
+
+    const handleSaveNote = async () => {
+        if (!newNote.trim()) return;
+
+        // Check if the note limit has been reached
+        if (notes.length >= MAX_NOTES) {
+            setError(`You have reached the maximum limit of ${MAX_NOTES} notes.`);
+            return;
+        }
+
+        setError(''); // Clear any previous errors
+
+        try {
+            const response = await fetch('http://127.0.0.1:5001/api/notes', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    userId: user.userId,
+                    moduleId: moduleId,
+                    content: newNote,
+                    color: selectedColor
+                })
+            });
+            const data = await response.json();
+            if (response.ok) {
+                // Add the new note to the top of the list for immediate feedback
+                setNotes([{ note_id: data.note_id, content: newNote, color: selectedColor }, ...notes]);
+                setNewNote(''); // Clear the textarea
+            } else {
+                console.error("Failed to save note:", data.error);
+            }
+        } catch (error) {
+            console.error("Error saving note:", error);
+        }
+    };
+
+     const handleDeleteNote = async (noteId) => {
+            try {
+                const response = await fetch(`http://127.0.0.1:5001/api/notes/${noteId}`, {
+                    method: 'DELETE',
+                });
+                if (response.ok) {
+                    // Remove the note from the state for immediate feedback
+                    setNotes(notes.filter(note => note.note_id !== noteId));
+                    setError('');
+                } else {
+                    const data = await response.json();
+                    console.error("Failed to delete note:", data.error);
+                }
+            } catch (error) {
+                console.error("Error deleting note:", error);
+            }
+        };
+
+    return (
+        <div className="sidebar-widget">
+            <div className="widget-header">Colour Notes</div>
+            <div className="widget-body">
+                <textarea
+                    className="notes-textarea"
+                    placeholder="Write your notes here..."
+                    value={newNote}
+                    onChange={(e) => setNewNote(e.target.value)}
+                />
+                <div className="d-flex justify-content-between align-items-center">
+                    <div className="color-palette">
+                        {colors.map(color => (
+                            <div
+                                key={color}
+                                className={`color-option note-${color} ${selectedColor === color ? 'selected' : ''}`}
+
+                                onClick={() => setSelectedColor(color)}
+                            />
+                        ))}
+                    </div>
+                    <button className="btn btn-primary btn-sm" onClick={handleSaveNote}>Save</button>
+                </div>
+                {error && <div className="alert alert-danger mt-2 p-2">{error}</div>}
+                <hr />
+                <div className="notes-list">
+                    {notes.map(note => (
+                        <div key={note.note_id} className={`note-item note-${note.color}`}>
+                            <button className="delete-note-btn" onClick={() => handleDeleteNote(note.note_id)}>
+                                <FaTimes />
+                            </button>
+                            <p>{note.content}</p>
+                        </div>
+                    ))}
+                </div>
+            </div>
+        </div>
+    );
+};
 
 // New, smaller accordion component for the nested items
 const SubAccordionItem = ({ title, children }) => {
@@ -62,11 +183,11 @@ const CalendarWidget = () => (
     <div className="sidebar-widget">
         <div className="widget-header">Calendar</div>
         <div className="widget-body">
-            <div className="text-center mb-2 fw-bold">July 2025</div>
+            <div className="text-center mb-2 fw-bold">August 2025</div>
             <div className="calendar-grid">
                 {['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'].map(day => <div key={day} className="calendar-day-name">{day}</div>)}
                 {Array.from({ length: 31 }, (_, i) => i + 1).map(day => (
-                    <div key={day} className={day === 27 ? 'calendar-day-active' : ''}>{day}</div>
+                    <div key={day} className={day === 8 ? 'calendar-day-active' : ''}>{day}</div>
                 ))}
             </div>
         </div>
@@ -76,6 +197,7 @@ const CalendarWidget = () => (
 const Intro = () => {
     const navigate = useNavigate();
     const { user, logout } = useAuth(); // Get user data from context
+    const moduleId = "INTRO_SE";
 
     const handleLogout = () => {
         logout();
@@ -131,10 +253,10 @@ const Intro = () => {
             }
         },
         {
-            title: 'Week 7 - Advanced Collections',
+            title: 'Reading Week - No Classes',
             content: {
-                theory: 'Content goes here...',
-                practical: 'Content goes here...'
+                theory: 'Theory revision.',
+                practical: 'Catching up with the practicals.'
             }
         },
         {
@@ -209,13 +331,7 @@ const Intro = () => {
 
                         <aside className="col-lg-3">
                             <CalendarWidget />
-                            <div className="sidebar-widget">
-                                <div className="widget-header">Colour Notes</div>
-                                <div className="widget-body">
-                                    <p>Add your notes for this module...</p>
-                                    <p>"different colour stickers here ?"</p>
-                                </div>
-                            </div>
+                            <ColourNotesWidget moduleId={moduleId} />
                             <div className="sidebar-widget">
                                 <div className="widget-header-AI">Learning Path Gen - AI Assistant</div>
                                 <div className="widget-body">

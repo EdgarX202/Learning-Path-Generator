@@ -48,6 +48,8 @@
     font-size: 0.9rem;
     color: #343a40;
     background-color: #fafafa; /* Slightly off-white background for content */
+    border-right-style: double;
+    border-width: 1px;
 }
 
 /* --- Copied from Courses.css for layout consistency --- */
@@ -104,7 +106,7 @@
     font-size: 0.7rem; /* Further reduced font size for day names */
 }
 .calendar-day-active {
-    background-color: #3E8C28;
+    background-color: #721515;
     color: white;
     border-radius: 50%;
 }
@@ -167,4 +169,63 @@
 .page-footer a:hover {
     text-decoration: underline;
 }
+
+/* --- NEW Styles for Colour Notes Widget --- */
+.notes-textarea {
+    width: 100%;
+    min-height: 80px;
+    border: 1px solid #ced4da;
+    border-radius: 0.25rem;
+    padding: 0.5rem;
+    margin-bottom: 0.5rem;
+}
+
+.color-palette {
+    display: flex;
+    gap: 0.5rem;
+    margin-bottom: 0.5rem;
+}
+
+.color-option {
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    cursor: pointer;
+    border: 2px solid transparent;
+}
+
+.color-option.selected {
+    border-color: #0d6efd; /* Blue border for selected color */
+}
+
+.note-item {
+    padding: 0.75rem;
+    border-radius: 0.25rem;
+    margin-bottom: 0.5rem;
+    color: #212529;
+    position: relative;
+}
+
+.note-item p {
+    margin: 0;
+    white-space: pre-wrap; /* Preserves line breaks */
+}
+
+.delete-note-btn {
+    position: absolute;
+    top: 5px;
+    right: 5px;
+    background: none;
+    border: none;
+    color: #6c757d;
+    cursor: pointer;
+}
+
+/* Note Colors */
+.note-yellow { background-color: #fff3cd; }
+.note-blue { background-color: #cce5ff; }
+.note-green { background-color: #d4edda; }
+.note-purple { background-color: #e2d9f3; }
+.note-orange { background-color: #ffe5d0; }
+.note-cyan { background-color: #cff4fc; }
 

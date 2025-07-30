@@ -115,6 +115,75 @@ def get_modules():
         return jsonify({"error": "An internal server error occurred."}), 500
 
 
+@app.route('/api/notes', methods=['GET'])
+def get_notes():
+    user_id = request.args.get('userId')
+    module_id = request.args.get('moduleId')
+    if not user_id or not module_id:
+        return jsonify({"error": "User ID and Module ID are required"}), 400
+
+    try:
+        conn = mysql.connector.connect(**db_config)
+        cursor = conn.cursor(dictionary=True)
+        query = "SELECT * FROM notes WHERE user_id = %s AND module_id = %s ORDER BY created_at DESC"
+        cursor.execute(query, (user_id, module_id))
+        notes = cursor.fetchall()
+        cursor.close()
+        conn.close()
+        return jsonify(notes)
+    except Exception as e:
+        print(f"Error fetching notes: {e}")
+        return jsonify({"error": "Failed to fetch notes"}), 500
+
+
+@app.route('/api/notes', methods=['POST'])
+def add_note():
+    data = request.get_json()
+    user_id = data.get('userId')
+    module_id = data.get('moduleId')
+    content = data.get('content')
+    color = data.get('color')
+
+    if not all([user_id, module_id, content, color]):
+        return jsonify({"error": "Missing required fields"}), 400
+
+    try:
+        conn = mysql.connector.connect(**db_config)
+        cursor = conn.cursor()
+        query = "INSERT INTO notes (user_id, module_id, content, color) VALUES (%s, %s, %s, %s)"
+        cursor.execute(query, (user_id, module_id, content, color))
+        conn.commit()
+        note_id = cursor.lastrowid
+        cursor.close()
+        conn.close()
+        return jsonify({"message": "Note added successfully", "note_id": note_id}), 201
+    except Exception as e:
+        print(f"Error adding note: {e}")
+        return jsonify({"error": "Failed to add note"}), 500
+
+
+@app.route('/api/notes/<int:note_id>', methods=['DELETE'])
+def delete_note(note_id):
+    try:
+        conn = mysql.connector.connect(**db_config)
+        cursor = conn.cursor()
+        query = "DELETE FROM notes WHERE note_id = %s"
+        cursor.execute(query, (note_id,))
+        conn.commit()
+
+        # Check if a row was actually deleted
+        if cursor.rowcount == 0:
+            cursor.close()
+            conn.close()
+            return jsonify({"error": "Note not found or already deleted"}), 404
+
+        cursor.close()
+        conn.close()
+        return jsonify({"message": "Note deleted successfully"}), 200
+    except Exception as e:
+        print(f"Error deleting note: {e}")
+        return jsonify({"error": "Failed to delete note"}), 500
+
 # --- Run the App ---
 if __name__ == '__main__':
     app.run(debug=True, port=5001)
