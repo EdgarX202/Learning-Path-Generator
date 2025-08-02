@@ -114,7 +114,7 @@ html, body {
 
 .calendar-grid > div { padding: 5px; }
 .calendar-day-name { font-weight: bold; font-size: 0.8rem; }
-.calendar-day-active { background-color: #3E8C28; color: white; border-radius: 50%; }
+.calendar-day-active { background-color: #69b654; color: white; border-radius: 50%; }
 
 /* --- Styles for Course Accordion --- */
 .course-accordion {

@@ -125,6 +125,44 @@ const ColourNotesWidget = ({ moduleId }) => {
     );
 };
 
+const LearningPathWidget = () => {
+    const [difficulty, setDifficulty] = useState('Beginner');
+    const [language, setLanguage] = useState('Python');
+
+    const handleGenerate = () => {
+        // This is where you would make an API call to your AI backend in the future
+        console.log(`Generating learning path for: ${difficulty} level in ${language}`);
+        alert(`Generating path for: ${difficulty} ${language}`);
+    };
+
+    return (
+        <div className="sidebar-widget">
+            <div className="widget-header-AI">Learning Path Gen - AI Assistant</div>
+            <div className="widget-body">
+                <div className="learning-path-form">
+                    <div className="form-group">
+                        <label htmlFor="difficulty-select" className="form-label">Select Difficulty:</label>
+                        <select id="difficulty-select" className="form-select" value={difficulty} onChange={(e) => setDifficulty(e.target.value)}>
+                            <option>Beginner</option>
+                            <option>Intermediate</option>
+                            <option>Advanced</option>
+                        </select>
+                    </div>
+                    <div className="form-group">
+                        <label htmlFor="language-select" className="form-label">Select Language:</label>
+                        <select id="language-select" className="form-select" value={language} onChange={(e) => setLanguage(e.target.value)}>
+                            <option>Python</option>
+                            <option>Java</option>
+                            <option>JavaScript</option>
+                        </select>
+                    </div>
+                    <button className="btn btn-warning btn-sm btn-generate" onClick={handleGenerate}>Generate</button>
+                </div>
+            </div>
+        </div>
+    );
+};
+
 // New, smaller accordion component for the nested items
 const SubAccordionItem = ({ title, children }) => {
     const [isOpen, setIsOpen] = useState(false);
@@ -332,12 +370,7 @@ const Intro = () => {
                         <aside className="col-lg-3">
                             <CalendarWidget />
                             <ColourNotesWidget moduleId={moduleId} />
-                            <div className="sidebar-widget">
-                                <div className="widget-header-AI">Learning Path Gen - AI Assistant</div>
-                                <div className="widget-body">
-                                    <p>Under Construction</p>
-                                </div>
-                            </div>
+                            <LearningPathWidget />
                         </aside>
                     </div>
                 </div>
