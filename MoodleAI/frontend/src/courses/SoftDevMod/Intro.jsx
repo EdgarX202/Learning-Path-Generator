@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '../../AuthContext.jsx'; // Corrected path
 import '../Modules.css'; // Corrected path
-import { FaBell, FaUserCircle, FaSignOutAlt, FaChevronRight, FaCode, FaTimes } from 'react-icons/fa';
+import { FaBell, FaUserCircle, FaSignOutAlt, FaChevronRight, FaCode, FaTimes, FaFileUpload, FaFilePdf, FaFileCode, FaTrash } from 'react-icons/fa';
 
 const ColourNotesWidget = ({ moduleId }) => {
     const { user } = useAuth();
@@ -163,10 +163,95 @@ const LearningPathWidget = () => {
     );
 };
 
-// New, smaller accordion component for the nested items
-const SubAccordionItem = ({ title, children }) => {
+// --- File Upload Component ---
+const FileUpload = ({ moduleId, weekTitle, fileType, onUploadSuccess }) => {
+    const [file, setFile] = useState(null);
+    const [message, setMessage] = useState('');
+
+    const handleFileChange = (e) => {
+        setFile(e.target.files[0]);
+    };
+
+    const handleUpload = async () => {
+        if (!file) {
+            setMessage('Please select a file first.');
+            return;
+        }
+
+        const formData = new FormData();
+        formData.append('file', file);
+        formData.append('moduleId', moduleId);
+        formData.append('weekTitle', weekTitle);
+        formData.append('fileType', fileType);
+
+        try {
+            const response = await fetch('http://127.0.0.1:5001/api/upload', {
+                method: 'POST',
+                body: formData,
+            });
+            const data = await response.json();
+            if (response.ok) {
+                setMessage(`Success: ${data.filename} uploaded.`);
+                onUploadSuccess(); // Call the refresh function from the parent
+                setFile(null);
+            } else {
+                setMessage(`Error: ${data.error}`);
+            }
+        } catch (error) {
+            setMessage('An unexpected error occurred.');
+        }
+    };
+
+    return (
+        <div className="file-upload-container">
+            <div className="file-upload-form">
+                <input type="file" onChange={handleFileChange} className="form-control form-control-sm file-upload-input" />
+                <button onClick={handleUpload} className="btn btn-secondary btn-sm"><FaFileUpload /></button>
+            </div>
+            {message && <p className="mt-2 mb-0 small">{message}</p>}
+        </div>
+    );
+};
+
+
+// --- Sub-Accordion for Theory/Practical ---
+const SubAccordionItem = ({ title, children, moduleId, weekTitle }) => {
     const [isOpen, setIsOpen] = useState(false);
+    const [files, setFiles] = useState([]);
+    const { user } = useAuth();
     const toggleOpen = () => setIsOpen(!isOpen);
+
+    // This function now handles fetching and refreshing the file list
+    const refreshFiles = async () => {
+        try {
+            const response = await fetch(`http://127.0.0.1:5001/api/files?moduleId=${moduleId}&weekTitle=${weekTitle}`);
+            const data = await response.json();
+            if(response.ok) {
+                setFiles(data.filter(f => f.file_type.toLowerCase() === title.toLowerCase()));
+            }
+        } catch (error) { console.error("Error fetching files:", error); }
+    };
+
+    useEffect(() => {
+        if (isOpen) {
+            refreshFiles();
+        }
+    }, [isOpen]); // Refreshes when the accordion is opened
+
+    const handleDeleteFile = async (fileId) => {
+        try {
+            const response = await fetch(`http://127.0.0.1:5001/api/files/${fileId}`, {
+                method: 'DELETE',
+            });
+            if (response.ok) {
+                refreshFiles(); // Refresh the list after successful deletion
+            } else {
+                console.error("Failed to delete file.");
+            }
+        } catch (error) {
+            console.error("Error deleting file:", error);
+        }
+    };
 
     return (
         <div className="sub-accordion-item">
@@ -177,6 +262,27 @@ const SubAccordionItem = ({ title, children }) => {
             {isOpen && (
                 <div className="sub-accordion-content">
                     {children}
+                    <ul className="file-list">
+                        {files.map(file => (
+                            <li key={file.file_id} className="file-list-item">
+                                <div>
+                                    {title.toLowerCase() === 'theory' ? <FaFilePdf className="me-2" /> : <FaFileCode className="me-2" />}
+                                    <a href={`http://127.0.0.1:5001/uploads/${file.file_name}`} target="_blank" rel="noopener noreferrer">
+                                        {file.file_name}
+                                    </a>
+                                </div>
+                                {user?.role === 'staff' && (
+                                    <button className="delete-file-btn" onClick={() => handleDeleteFile(file.file_id)}>
+                                        <FaTrash />
+                                    </button>
+                                )}
+                            </li>
+                        ))}
+                    </ul>
+                    {user?.role === 'staff' && (
+                        // Pass the 'refreshFiles' function to the child component
+                        <FileUpload moduleId={moduleId} weekTitle={weekTitle} fileType={title.toLowerCase()} onUploadSuccess={refreshFiles} />
+                    )}
                 </div>
             )}
         </div>
@@ -184,8 +290,8 @@ const SubAccordionItem = ({ title, children }) => {
 };
 
 
-// Reusable Accordion Item for the weekly content
-const WeekAccordionItem = ({ topic, startOpen = false }) => {
+// --- Main Week Accordion ---
+const WeekAccordionItem = ({ topic, startOpen = false, moduleId }) => {
     const [isOpen, setIsOpen] = useState(startOpen);
     const toggleOpen = () => setIsOpen(!isOpen);
 
@@ -197,15 +303,14 @@ const WeekAccordionItem = ({ topic, startOpen = false }) => {
             </div>
             {isOpen && (
                 <div className="week-accordion-content">
-                    {/* Conditional rendering based on the type of content */}
                     {typeof topic.content === 'string' ? (
                         <div className="p-3">{topic.content}</div>
                     ) : (
                         <>
-                            <SubAccordionItem title="Theory">
+                            <SubAccordionItem title="Theory" moduleId={moduleId} weekTitle={topic.title}>
                                 <p>{topic.content.theory}</p>
                             </SubAccordionItem>
-                            <SubAccordionItem title="Practical">
+                            <SubAccordionItem title="Practical" moduleId={moduleId} weekTitle={topic.title}>
                                 <p>{topic.content.practical}</p>
                             </SubAccordionItem>
                         </>
@@ -246,48 +351,48 @@ const Intro = () => {
     const weeklyTopics = [
         {
             title: 'General/Announcements',
-            content: 'Theory will be introduced by a lecturer, and practicals will be introduced by the AI assistant based on the theory provided? (probably future work, manual upload for now).'
+            content: 'Theory will be introduced by a lecturer, and practicals will be introduced by the AI assistant based on the theory provided? (probably future work, manual upload for now - STAFF login required).'
         },
         {
             title: 'Week 1 - Understanding The Module',
             content: {
-                theory: 'Content goes here...',
-                practical: 'Content goes here...'
+                theory: 'Read the PDF file for this week.',
+                practical: 'Finish the practical by the end of this week.'
             }
         },
         {
             title: 'Week 2 - Data & Operations',
             content: {
-                theory: 'Content goes here...',
-                practical: 'Content goes here...'
+                theory: 'Read the PDF file for this week.',
+                practical: 'Finish the practical by the end of this week.'
             }
         },
         {
             title: 'Week 3 - Control Flow',
             content: {
-                theory: 'Content goes here...',
-                practical: 'Content goes here...'
+                theory: 'Read the PDF file for this week.',
+                practical: 'Finish the practical by the end of this week.'
             }
         },
         {
             title: 'Week 4 - Collections',
             content: {
-                theory: 'Content goes here...',
-                practical: 'Content goes here...'
+                theory: 'Read the PDF file for this week.',
+                practical: 'Finish the practical by the end of this week.'
             }
         },
         {
             title: 'Week 5 - Functions & Modularity',
             content: {
-                theory: 'Content goes here...',
-                practical: 'Content goes here...'
+                theory: 'Read the PDF file for this week.',
+                practical: 'Finish the practical by the end of this week.'
             }
         },
         {
             title: 'Week 6 - Introduction to OOP',
             content: {
-                theory: 'Content goes here...',
-                practical: 'Content goes here...'
+                theory: 'Read the PDF file for this week.',
+                practical: 'Finish the practical by the end of this week.'
             }
         },
         {
@@ -300,29 +405,29 @@ const Intro = () => {
         {
             title: 'Week 8 - Error Handling & Debugging',
             content: {
-                theory: 'Content goes here...',
-                practical: 'Content goes here...'
+                theory: 'Read the PDF file for this week.',
+                practical: 'Finish the practical by the end of this week.'
             }
         },
         {
             title: 'Week 9 - Introduction to Software Testing',
             content: {
-                theory: 'Content goes here...',
-                practical: 'Content goes here...'
+                theory: 'Read the PDF file for this week.',
+                practical: 'Finish the practical by the end of this week.'
             }
         },
         {
             title: 'Week 10 - Version Control with Git & GitHub',
             content: {
-                theory: 'Content goes here...',
-                practical: 'Content goes here...'
+                theory: 'Read the PDF file for this week.',
+                practical: 'Finish the practical by the end of this week.'
             }
         },
         {
             title: 'Week 11 - Revision',
             content: {
-                theory: 'Content goes here...',
-                practical: 'Content goes here...'
+                theory: 'Read the PDF file for this week.',
+                practical: 'Finish the practical by the end of this week.'
             }
         },
         {
