@@ -1,32 +1,38 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useAuth } from './AuthContext.jsx'; // Import the useAuth hook
+import { useAuth } from './AuthContext.jsx';
 import './Login.css';
 
 const Login = () => {
+    // --- State Management ---
     const [username, setUsername] = useState('');
     const [password, setPassword] = useState('');
     const [error, setError] = useState('');
-    const navigate = useNavigate();
-    const { login } = useAuth(); // Get the login function from the context
 
+    // --- Hooks ---
+    const navigate = useNavigate(); // Get the navigate function from React Router to redirect the user
+    const { login } = useAuth(); // Get the login function from AuthContext to manage users session
+
+    // --- Event Handlers ---
     const handleSubmit = async (event) => {
         event.preventDefault();
         setError('');
 
+        // try/catch for handling any network errors
         try {
+            // Send a POST request to the backend API with users credentials
             const response = await fetch('http://127.0.0.1:5001/api/login', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ username, password }),
             });
 
+            // Parse JSON response from the server
             const data = await response.json();
 
             if (response.ok) {
-                // Call the login function from the context with the user data
+                // This saves users data to localStorage, making the session persistent
                 login({ userId: data.userId, role: data.role, firstName: data.firstName });
-                // Navigate to the courses dashboard
                 navigate('/courses');
             } else {
                 setError(data.error || 'An unknown error occurred.');
@@ -36,6 +42,10 @@ const Login = () => {
         }
     };
 
+    /*
+        --- JSX rendering ---
+        This is the HTML structure that will be rendered
+    */
     return (
         <div className="login-container">
             <div className="login-card">
