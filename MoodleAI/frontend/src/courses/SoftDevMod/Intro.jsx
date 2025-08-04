@@ -217,26 +217,29 @@ const FileUpload = ({ moduleId, weekTitle, fileType, onUploadSuccess }) => {
 // --- Sub-Accordion for Theory/Practical ---
 const SubAccordionItem = ({ title, children, moduleId, weekTitle }) => {
     const [isOpen, setIsOpen] = useState(false);
+    // This component manages its own list of files.
     const [files, setFiles] = useState([]);
     const { user } = useAuth();
     const toggleOpen = () => setIsOpen(!isOpen);
-
-    // This function now handles fetching and refreshing the file list
-    const refreshFiles = async () => {
-        try {
-            const response = await fetch(`http://127.0.0.1:5001/api/files?moduleId=${moduleId}&weekTitle=${weekTitle}`);
-            const data = await response.json();
-            if(response.ok) {
-                setFiles(data.filter(f => f.file_type.toLowerCase() === title.toLowerCase()));
-            }
-        } catch (error) { console.error("Error fetching files:", error); }
-    };
+    const [refreshTrigger, setRefreshTrigger] = useState(0);
+    const handleUploadSuccess = () => setRefreshTrigger(t => t + 1);
 
     useEffect(() => {
+        const refreshFiles = async () => {
+            try {
+                const response = await fetch(`http://127.0.0.1:5001/api/files?moduleId=${moduleId}&weekTitle=${encodeURIComponent(weekTitle)}`);
+                const data = await response.json();
+                if(response.ok) {
+                    setFiles(data.filter(f => f.file_type.toLowerCase() === title.toLowerCase()));
+                }
+            } catch (error) { console.error("Error fetching files:", error); }
+        };
+
         if (isOpen) {
             refreshFiles();
         }
-    }, [isOpen]); // Refreshes when the accordion is opened
+        // CORRECTED: Added 'refreshTrigger' to the dependency array
+    }, [isOpen, refreshTrigger]);
 
     const handleDeleteFile = async (fileId) => {
         try {
@@ -244,7 +247,7 @@ const SubAccordionItem = ({ title, children, moduleId, weekTitle }) => {
                 method: 'DELETE',
             });
             if (response.ok) {
-                refreshFiles(); // Refresh the list after successful deletion
+                handleUploadSuccess();
             } else {
                 console.error("Failed to delete file.");
             }
@@ -263,6 +266,7 @@ const SubAccordionItem = ({ title, children, moduleId, weekTitle }) => {
                 <div className="sub-accordion-content">
                     {children}
                     <ul className="file-list">
+                        {/* This map function uses the 'files' state variable defined above. */}
                         {files.map(file => (
                             <li key={file.file_id} className="file-list-item">
                                 <div>
@@ -280,8 +284,7 @@ const SubAccordionItem = ({ title, children, moduleId, weekTitle }) => {
                         ))}
                     </ul>
                     {user?.role === 'staff' && (
-                        // Pass the 'refreshFiles' function to the child component
-                        <FileUpload moduleId={moduleId} weekTitle={weekTitle} fileType={title.toLowerCase()} onUploadSuccess={refreshFiles} />
+                        <FileUpload moduleId={moduleId} weekTitle={weekTitle} fileType={title.toLowerCase()} onUploadSuccess={handleUploadSuccess} />
                     )}
                 </div>
             )}
@@ -293,7 +296,49 @@ const SubAccordionItem = ({ title, children, moduleId, weekTitle }) => {
 // --- Main Week Accordion ---
 const WeekAccordionItem = ({ topic, startOpen = false, moduleId }) => {
     const [isOpen, setIsOpen] = useState(startOpen);
+    // This component also manages its own 'files' state, specifically for the Final Project section.
+    const [files, setFiles] = useState([]);
+    const { user } = useAuth();
     const toggleOpen = () => setIsOpen(!isOpen);
+    const [refreshTrigger, setRefreshTrigger] = useState(0);
+    const handleUploadSuccess = () => setRefreshTrigger(t => t + 1);
+
+    const refreshFiles = async () => {
+        if (topic.title !== 'Final Project') return;
+        try {
+            const response = await fetch(`http://127.0.0.1:5001/api/files?moduleId=${moduleId}&weekTitle=${encodeURIComponent(weekTitle)}`);
+            const data = await response.json();
+            if (response.ok) {
+                setFiles(data);
+            }
+        } catch (error) { console.error("Error fetching files:", error); }
+    };
+
+     useEffect(() => {
+        const refreshFiles = async () => {
+            if (topic.title !== 'Final Project') return;
+            try {
+                const response = await fetch(`http://127.0.0.1:5001/api/files?moduleId=${moduleId}&weekTitle=${topic.title}`);
+                const data = await response.json();
+                if (response.ok) {
+                    setFiles(data);
+                }
+            } catch (error) { console.error("Error fetching files:", error); }
+        };
+
+        if (isOpen && topic.title === 'Final Project') {
+            refreshFiles();
+        }
+    }, [isOpen, refreshTrigger]);
+
+    const handleDeleteFile = async (fileId) => {
+        try {
+            const response = await fetch(`http://127.0.0.1:5001/api/files/${fileId}`, { method: 'DELETE' });
+            if (response.ok) {
+                handleUploadSuccess();
+            }
+        } catch (error) { console.error("Error deleting file:", error); }
+    };
 
     return (
         <div className="week-accordion-item">
@@ -304,7 +349,35 @@ const WeekAccordionItem = ({ topic, startOpen = false, moduleId }) => {
             {isOpen && (
                 <div className="week-accordion-content">
                     {typeof topic.content === 'string' ? (
-                        <div className="p-3">{topic.content}</div>
+                        <div className="p-3">
+                            <p>{topic.content}</p>
+                            {/* Special handling for Final Project to show files and upload */}
+                            {topic.title === 'Final Project' && (
+                                <>
+                                    <ul className="file-list px-0">
+                                        {/* This map function uses the 'files' state variable defined in this component. */}
+                                        {files.map(file => (
+                                            <li key={file.file_id} className="file-list-item">
+                                                <div>
+                                                    <FaFilePdf className="me-2" />
+                                                    <a href={`http://127.0.0.1:5001/uploads/${file.file_name}`} target="_blank" rel="noopener noreferrer">
+                                                        {file.file_name}
+                                                    </a>
+                                                </div>
+                                                {user?.role === 'staff' && (
+                                                    <button className="delete-file-btn" onClick={() => handleDeleteFile(file.file_id)}>
+                                                        <FaTrash />
+                                                    </button>
+                                                )}
+                                            </li>
+                                        ))}
+                                    </ul>
+                                    {user?.role === 'staff' && (
+                                        <FileUpload moduleId={moduleId} weekTitle={topic.title} fileType="project" onUploadSuccess={handleUploadSuccess} />
+                                    )}
+                                </>
+                            )}
+                        </div>
                     ) : (
                         <>
                             <SubAccordionItem title="Theory" moduleId={moduleId} weekTitle={topic.title}>
@@ -355,80 +428,47 @@ const Intro = () => {
         },
         {
             title: 'Week 1 - Understanding The Module',
-            content: {
-                theory: 'Read the PDF file for this week.',
-                practical: 'Finish the practical by the end of this week.'
-            }
+            content: { theory: 'Read the PDF file for this week.', practical: 'Finish the practical by the end of this week.' }
         },
         {
             title: 'Week 2 - Data & Operations',
-            content: {
-                theory: 'Read the PDF file for this week.',
-                practical: 'Finish the practical by the end of this week.'
-            }
+            content: { theory: 'Read the PDF file for this week.', practical: 'Finish the practical by the end of this week.' }
         },
         {
             title: 'Week 3 - Control Flow',
-            content: {
-                theory: 'Read the PDF file for this week.',
-                practical: 'Finish the practical by the end of this week.'
-            }
+            content: { theory: 'Read the PDF file for this week.', practical: 'Finish the practical by the end of this week.' }
         },
         {
             title: 'Week 4 - Collections',
-            content: {
-                theory: 'Read the PDF file for this week.',
-                practical: 'Finish the practical by the end of this week.'
-            }
+            content: { theory: 'Read the PDF file for this week.', practical: 'Finish the practical by the end of this week.' }
         },
         {
             title: 'Week 5 - Functions & Modularity',
-            content: {
-                theory: 'Read the PDF file for this week.',
-                practical: 'Finish the practical by the end of this week.'
-            }
+            content: { theory: 'Read the PDF file for this week.', practical: 'Finish the practical by the end of this week.' }
         },
         {
             title: 'Week 6 - Introduction to OOP',
-            content: {
-                theory: 'Read the PDF file for this week.',
-                practical: 'Finish the practical by the end of this week.'
-            }
+            content: { theory: 'Read the PDF file for this week.', practical: 'Finish the practical by the end of this week.' }
         },
         {
             title: 'Reading Week - No Classes',
-            content: {
-                theory: 'Theory revision.',
-                practical: 'Catching up with the practicals.'
-            }
+            content: { theory: 'Theory revision.', practical: 'Catching up with the practicals.' }
         },
         {
             title: 'Week 8 - Error Handling & Debugging',
-            content: {
-                theory: 'Read the PDF file for this week.',
-                practical: 'Finish the practical by the end of this week.'
-            }
+            content: { theory: 'Read the PDF file for this week.', practical: 'Finish the practical by the end of this week.' }
         },
         {
             title: 'Week 9 - Introduction to Software Testing',
-            content: {
-                theory: 'Read the PDF file for this week.',
-                practical: 'Finish the practical by the end of this week.'
-            }
+            content: { theory: 'Read the PDF file for this week.', practical: 'Finish the practical by the end of this week.' }
         },
         {
             title: 'Week 10 - Version Control with Git & GitHub',
-            content: {
-                theory: 'Read the PDF file for this week.',
-                practical: 'Finish the practical by the end of this week.'
-            }
+            content: { theory: 'Read the PDF file for this week.', practical: 'Finish the practical by the end of this week.' }
         },
         {
             title: 'Week 11 - Revision',
-            content: {
-                theory: 'Read the PDF file for this week.',
-                practical: 'Finish the practical by the end of this week.'
-            }
+            content: { theory: 'Read the PDF file for this week.', practical: 'Finish the practical by the end of this week.' }
         },
         {
             title: 'Final Project',
@@ -461,14 +501,14 @@ const Intro = () => {
                                 alt="Some Image"
                                 className="left-sidebar-image"
                             />
-                            </aside> {/* <----- EMPTY LEFT COLUMN HERE */}
+                            </aside>
                         <main className="col-lg-8">
                              <div className="module-title-header">
                                 <FaCode className="icon" />
                                 <h2 className="mb-0">Introduction to the Software Lifecycle</h2>
                             </div>
                             {weeklyTopics.map((topic, index) => (
-                                <WeekAccordionItem key={index} topic={topic} startOpen={index === 0} />
+                                <WeekAccordionItem key={index} topic={topic} startOpen={index === 0} moduleId={moduleId} />
                             ))}
                         </main>
 
