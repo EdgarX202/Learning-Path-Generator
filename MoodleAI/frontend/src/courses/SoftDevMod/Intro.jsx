@@ -4,15 +4,20 @@ import { useAuth } from '../../AuthContext.jsx'; // Corrected path
 import '../Modules.css'; // Corrected path
 import { FaBell, FaUserCircle, FaSignOutAlt, FaChevronRight, FaCode, FaTimes, FaFileUpload, FaFilePdf, FaFileCode, FaTrash } from 'react-icons/fa';
 
+// --- COLOUR NOTES WIDGET ---
 const ColourNotesWidget = ({ moduleId }) => {
+    // Hook - Get current user from authentication
     const { user } = useAuth();
+    // States
     const [notes, setNotes] = useState([]);
     const [newNote, setNewNote] = useState('');
     const [error, setError] = useState('');
     const [selectedColor, setSelectedColor] = useState('yellow');
+
     const colors = ['yellow', 'blue', 'green', 'purple', 'orange', 'cyan'];
     const MAX_NOTES = 12;
 
+    // Fetch the notes
     useEffect(() => {
         if (user?.userId && moduleId) {
             const fetchNotes = async () => {
@@ -32,18 +37,19 @@ const ColourNotesWidget = ({ moduleId }) => {
         }
     }, [user, moduleId]);
 
+    // Save a note to the database
     const handleSaveNote = async () => {
-        if (!newNote.trim()) return;
+        if (!newNote.trim()) return; // Don't save empty notes
 
         // Check if the note limit has been reached
         if (notes.length >= MAX_NOTES) {
             setError(`You have reached the maximum limit of ${MAX_NOTES} notes.`);
             return;
         }
-
-        setError(''); // Clear any previous errors
+        setError('');
 
         try {
+            // POST request to API to create a new note
             const response = await fetch('http://127.0.0.1:5001/api/notes', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
@@ -58,7 +64,7 @@ const ColourNotesWidget = ({ moduleId }) => {
             if (response.ok) {
                 // Add the new note to the top of the list for immediate feedback
                 setNotes([{ note_id: data.note_id, content: newNote, color: selectedColor }, ...notes]);
-                setNewNote(''); // Clear the textarea
+                setNewNote('');
             } else {
                 console.error("Failed to save note:", data.error);
             }
@@ -67,8 +73,10 @@ const ColourNotesWidget = ({ moduleId }) => {
         }
     };
 
+    // Delete a note
      const handleDeleteNote = async (noteId) => {
             try {
+                // DELETE request to the API
                 const response = await fetch(`http://127.0.0.1:5001/api/notes/${noteId}`, {
                     method: 'DELETE',
                 });
@@ -125,12 +133,15 @@ const ColourNotesWidget = ({ moduleId }) => {
     );
 };
 
+// --- LEARNING PATH WIDGET ---
+// Its a sidebar widget for an AI-powered learning path generator
 const LearningPathWidget = () => {
+    // States
     const [difficulty, setDifficulty] = useState('Beginner');
     const [language, setLanguage] = useState('Python');
 
+    // Generate button functionality
     const handleGenerate = () => {
-        // This is where you would make an API call to your AI backend in the future
         console.log(`Generating learning path for: ${difficulty} level in ${language}`);
         alert(`Generating path for: ${difficulty} ${language}`);
     };
@@ -154,6 +165,8 @@ const LearningPathWidget = () => {
                             <option>Python</option>
                             <option>Java</option>
                             <option>JavaScript</option>
+                            <option>C#</option>
+                            <option>C++</option>
                         </select>
                     </div>
                     <button className="btn btn-warning btn-sm btn-generate" onClick={handleGenerate}>Generate</button>
@@ -163,21 +176,24 @@ const LearningPathWidget = () => {
     );
 };
 
-// --- File Upload Component ---
+// --- FILE UPLOAD COMPONENT ---
+// Handles file selection and upload
 const FileUpload = ({ moduleId, weekTitle, fileType, onUploadSuccess }) => {
+    // States
     const [file, setFile] = useState(null);
     const [message, setMessage] = useState('');
 
+    // Updates state when a user select a file
     const handleFileChange = (e) => {
         setFile(e.target.files[0]);
     };
-
+    // Upload the selected file to the server
     const handleUpload = async () => {
         if (!file) {
             setMessage('Please select a file first.');
             return;
         }
-
+        // Use of formData for sending the file as a multi-part data
         const formData = new FormData();
         formData.append('file', file);
         formData.append('moduleId', moduleId);
@@ -185,6 +201,7 @@ const FileUpload = ({ moduleId, weekTitle, fileType, onUploadSuccess }) => {
         formData.append('fileType', fileType);
 
         try {
+            // POST request to the upload API
             const response = await fetch('http://127.0.0.1:5001/api/upload', {
                 method: 'POST',
                 body: formData,
@@ -192,8 +209,8 @@ const FileUpload = ({ moduleId, weekTitle, fileType, onUploadSuccess }) => {
             const data = await response.json();
             if (response.ok) {
                 setMessage(`Success: ${data.filename} uploaded.`);
-                onUploadSuccess(); // Call the refresh function from the parent
-                setFile(null);
+                onUploadSuccess(); // Callback to notify the parent component
+                setFile(null); // Reset file input
             } else {
                 setMessage(`Error: ${data.error}`);
             }
@@ -213,23 +230,30 @@ const FileUpload = ({ moduleId, weekTitle, fileType, onUploadSuccess }) => {
     );
 };
 
-
-// --- Sub-Accordion for Theory/Practical ---
+/*
+    --- SUB-ACCORDION FOR THEORY/PRACTICAL ---
+   It renders the nested accordion items within a main week.
+   Also manages fetching and displaying its own set of files.
+*/
 const SubAccordionItem = ({ title, children, moduleId, weekTitle }) => {
+    // States
     const [isOpen, setIsOpen] = useState(false);
-    // This component manages its own list of files.
-    const [files, setFiles] = useState([]);
+    const [files, setFiles] = useState([]); // Stores the list of files for this specific item
     const { user } = useAuth();
     const toggleOpen = () => setIsOpen(!isOpen);
-    const [refreshTrigger, setRefreshTrigger] = useState(0);
+    const [refreshTrigger, setRefreshTrigger] = useState(0); // Counter for triggering re-fetch of data
+    // Callback function to be passed to the FileUpload component. Increments the trigger.
     const handleUploadSuccess = () => setRefreshTrigger(t => t + 1);
 
+    // Fetches files when the accordion is opened or after a file upload/delete
     useEffect(() => {
         const refreshFiles = async () => {
             try {
+                // Fetch files. weekTitle is encoded to handle special characters ('&')
                 const response = await fetch(`http://127.0.0.1:5001/api/files?moduleId=${moduleId}&weekTitle=${encodeURIComponent(weekTitle)}`);
                 const data = await response.json();
                 if(response.ok) {
+                    // Filter the results to show only files matching components title
                     setFiles(data.filter(f => f.file_type.toLowerCase() === title.toLowerCase()));
                 }
             } catch (error) { console.error("Error fetching files:", error); }
@@ -238,9 +262,9 @@ const SubAccordionItem = ({ title, children, moduleId, weekTitle }) => {
         if (isOpen) {
             refreshFiles();
         }
-        // CORRECTED: Added 'refreshTrigger' to the dependency array
     }, [isOpen, refreshTrigger]);
 
+    // Handles file deletion
     const handleDeleteFile = async (fileId) => {
         try {
             const response = await fetch(`http://127.0.0.1:5001/api/files/${fileId}`, {
@@ -266,7 +290,6 @@ const SubAccordionItem = ({ title, children, moduleId, weekTitle }) => {
                 <div className="sub-accordion-content">
                     {children}
                     <ul className="file-list">
-                        {/* This map function uses the 'files' state variable defined above. */}
                         {files.map(file => (
                             <li key={file.file_id} className="file-list-item">
                                 <div>
@@ -293,11 +316,16 @@ const SubAccordionItem = ({ title, children, moduleId, weekTitle }) => {
 };
 
 
-// --- Main Week Accordion ---
+/*
+    --- MAIN WEEK ACCORDION ---
+    Render a top-level weekly accordion item.
+    1. If content is a string, it displays the text and a file list.
+    2. If content is an object, it renders SubAccordionItem for theory and practical
+*/
 const WeekAccordionItem = ({ topic, startOpen = false, moduleId }) => {
+    // States
     const [isOpen, setIsOpen] = useState(startOpen);
-    // This component also manages its own 'files' state, specifically for the Final Project section.
-    const [files, setFiles] = useState([]);
+    const [files, setFiles] = useState([]); // Manages files only for string-based content like 'Final Project'
     const { user } = useAuth();
     const toggleOpen = () => setIsOpen(!isOpen);
     const [refreshTrigger, setRefreshTrigger] = useState(0);
@@ -314,6 +342,8 @@ const WeekAccordionItem = ({ topic, startOpen = false, moduleId }) => {
         } catch (error) { console.error("Error fetching files:", error); }
     };
 
+    // Fetch files for the 'Final Project' section
+    // This effect only applies to this specific section
      useEffect(() => {
         const refreshFiles = async () => {
             if (topic.title !== 'Final Project') return;
@@ -331,6 +361,7 @@ const WeekAccordionItem = ({ topic, startOpen = false, moduleId }) => {
         }
     }, [isOpen, refreshTrigger]);
 
+    // Handles delete file for the final project section
     const handleDeleteFile = async (fileId) => {
         try {
             const response = await fetch(`http://127.0.0.1:5001/api/files/${fileId}`, { method: 'DELETE' });
@@ -394,7 +425,10 @@ const WeekAccordionItem = ({ topic, startOpen = false, moduleId }) => {
     );
 };
 
-// Calendar Widget for layout consistency
+/*
+    --- CALENDAR WIDGET ---
+    A hardcoded static calendar, no functionality integrated (for now).
+*/
 const CalendarWidget = () => (
     <div className="sidebar-widget">
         <div className="widget-header">Calendar</div>
@@ -410,21 +444,32 @@ const CalendarWidget = () => (
     </div>
 );
 
+/*
+    --- INTRO: MAIN PAGE ---
+    The main page component for a specific module.
+    It orchestrates the entire layout, including header, weekly content accordions, and sidebar widgets.
+*/
 const Intro = () => {
+    // Hooks
     const navigate = useNavigate();
-    const { user, logout } = useAuth(); // Get user data from context
-    const moduleId = "INTRO_SE";
+    const { user, logout } = useAuth();
+    // Unique identifier for this module (should be changed to dynamically assign ID through database)
+    const moduleId = "INTRO_SE"; // CHANGE FOR EACH MODULE
 
+    // Handles user logout, and re-directs to login page
     const handleLogout = () => {
         logout();
         navigate('/login');
     };
 
-    // Updated data structure
+    /*
+        Data structure defining the content for each week of the module.
+        The structure of the 'content' property determines how the WeekAccordionItem will render it.
+    */
     const weeklyTopics = [
         {
             title: 'General/Announcements',
-            content: 'Theory will be introduced by a lecturer, and practicals will be introduced by the AI assistant based on the theory provided? (probably future work, manual upload for now - STAFF login required).'
+            content: 'Welcome to the module! Check out your weekly lecture and practical sessions.'
         },
         {
             title: 'Week 1 - Understanding The Module',
@@ -478,6 +523,7 @@ const Intro = () => {
 
     return (
         <div className="ai-page-container">
+            {/* TOP NAV BAR */}
             <nav className="navbar navbar-expand-lg navbar-dark bg-dark fixed-top">
                 <div className="container-fluid">
                     <Link className="navbar-brand" to="/courses">Moodle AI</Link> {/* Link back to dashboard */}
@@ -492,9 +538,11 @@ const Intro = () => {
                 </div>
             </nav>
 
+            {/* MAIN CONTENT AREA */}
             <div className="page-content"> {/* Wrapper for main content */}
                 <div className="container-fluid p-4" style={{ marginTop: '56px' }}>
                     <div className="row">
+                        {/* left sidebar image */}
                         <aside className="d-none d-lg-block col-lg-1">
                             <img
                                 src="../../public/21.jpg"
@@ -502,16 +550,20 @@ const Intro = () => {
                                 className="left-sidebar-image"
                             />
                             </aside>
+
+                        {/* main content column with weekly accordions */}
                         <main className="col-lg-8">
                              <div className="module-title-header">
                                 <FaCode className="icon" />
                                 <h2 className="mb-0">Introduction to the Software Lifecycle</h2>
                             </div>
+                            {/* dynamically create an accordion for each topic in the data structure */}
                             {weeklyTopics.map((topic, index) => (
                                 <WeekAccordionItem key={index} topic={topic} startOpen={index === 0} moduleId={moduleId} />
                             ))}
                         </main>
 
+                        {/* RIGHT SIDE BAR WITH WIDGETS */}
                         <aside className="col-lg-3">
                             <CalendarWidget />
                             <ColourNotesWidget moduleId={moduleId} />
@@ -521,6 +573,7 @@ const Intro = () => {
                 </div>
             </div>
 
+            {/* PAGE FOOTER */}
             <footer className="page-footer">
                 <div className="container">
                     <p>&copy; {new Date().getFullYear()} Edgar Park | ENU. All Rights Reserved.</p>
