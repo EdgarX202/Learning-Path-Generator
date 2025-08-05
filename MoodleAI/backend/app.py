@@ -22,9 +22,7 @@ db_config = {
     'database': 'university_db'
 }
 
-
 # --- API Endpoints ---
-
 @app.route('/api/login', methods=['POST'])
 def login():
     """ Handles user login requests. """
@@ -60,7 +58,7 @@ def login():
 
 @app.route('/api/courses', methods=['GET'])
 def get_courses():
-    """ Fetches courses based on the user's role and enrollment. """
+    """ Fetches courses based on the users role and enrolment. """
     user_id = request.args.get('userId')
     if not user_id:
         return jsonify({"error": "User ID is required"}), 400
@@ -110,7 +108,6 @@ def get_modules():
     try:
         conn = mysql.connector.connect(**db_config)
         cursor = conn.cursor(dictionary=True)
-        # Assumes you have a 'modules' table with 'module_id', 'module_name', and a 'course_id' foreign key
         query = "SELECT module_id, module_name FROM modules WHERE course_id = %s"
         cursor.execute(query, (course_id,))
         modules = cursor.fetchall()
@@ -121,9 +118,9 @@ def get_modules():
         print(f"Error fetching modules: {e}")
         return jsonify({"error": "An internal server error occurred."}), 500
 
-
 @app.route('/api/notes', methods=['GET'])
 def get_notes():
+    """ Fetch all the notes """
     user_id = request.args.get('userId')
     module_id = request.args.get('moduleId')
     if not user_id or not module_id:
@@ -145,6 +142,7 @@ def get_notes():
 
 @app.route('/api/notes', methods=['POST'])
 def add_note():
+    """ Adds a single note to the database """
     data = request.get_json()
     user_id = data.get('userId')
     module_id = data.get('moduleId')
@@ -168,9 +166,9 @@ def add_note():
         print(f"Error adding note: {e}")
         return jsonify({"error": "Failed to add note"}), 500
 
-
 @app.route('/api/notes/<int:note_id>', methods=['DELETE'])
 def delete_note(note_id):
+    """ Deletes notes from the database """
     try:
         conn = mysql.connector.connect(**db_config)
         cursor = conn.cursor()
@@ -178,7 +176,6 @@ def delete_note(note_id):
         cursor.execute(query, (note_id,))
         conn.commit()
 
-        # Check if a row was actually deleted
         if cursor.rowcount == 0:
             cursor.close()
             conn.close()
@@ -191,9 +188,9 @@ def delete_note(note_id):
         print(f"Error deleting note: {e}")
         return jsonify({"error": "Failed to delete note"}), 500
 
-
 @app.route('/api/upload', methods=['POST'])
 def upload_file():
+    """ Uploads files to the database """
     if 'file' not in request.files:
         return jsonify({"error": "No file part"}), 400
 
@@ -201,7 +198,6 @@ def upload_file():
     if file.filename == '':
         return jsonify({"error": "No selected file"}), 400
 
-    # Get metadata from the form data
     module_id = request.form.get('moduleId')
     week_title = request.form.get('weekTitle')
     file_type = request.form.get('fileType')  # 'theory' or 'practical'
@@ -231,9 +227,9 @@ def upload_file():
             print(f"Database error on upload: {e}")
             return jsonify({"error": "Failed to save file information"}), 500
 
-
 @app.route('/api/files', methods=['GET'])
 def get_files():
+    """ Retrieve all files from the database """
     module_id = request.args.get('moduleId')
     week_title = request.args.get('weekTitle')
     if not all([module_id, week_title]):
@@ -252,11 +248,9 @@ def get_files():
         print(f"Error fetching files: {e}")
         return jsonify({"error": "Failed to fetch files"}), 500
 
-
 @app.route('/uploads/<filename>')
 def uploaded_file(filename):
     return send_from_directory(app.config['UPLOAD_FOLDER'], filename)
-
 
 @app.route('/api/files/<int:file_id>', methods=['DELETE'])
 def delete_file(file_id):
@@ -266,7 +260,6 @@ def delete_file(file_id):
         conn = mysql.connector.connect(**db_config)
         cursor = conn.cursor(dictionary=True)
 
-        # First, get the file path to delete it from the server
         cursor.execute("SELECT file_path FROM module_files WHERE file_id = %s", (file_id,))
         file_record = cursor.fetchone()
 
