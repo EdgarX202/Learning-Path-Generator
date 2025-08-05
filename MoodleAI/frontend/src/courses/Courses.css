@@ -1,15 +1,11 @@
-/* --- CSS Reset and Body Padding for Fixed Navbar --- */
+
+/* Stylesheet for courses page */
+
 html, body {
     margin: 0;
     padding: 0;
 }
 
-/* This is the most reliable way to prevent the fixed navbar from overlapping content.
-   It ensures the main browser scrollbar works correctly. */
-
-
-
-/* This new rule overrides conflicting styles to fix the scrolling issue */
 .App {
     height: auto !important;
 }
@@ -26,7 +22,6 @@ html, body {
     border-radius: 0.25rem;
     margin-bottom: 2rem;
 }
-
 .section-header {
     background-color: #4a5c6a;
     color: white;
@@ -35,12 +30,11 @@ html, body {
     border-top-left-radius: 0.25rem;
     border-top-right-radius: 0.25rem;
 }
-
 .section-body {
     padding: 1.25rem;
 }
 
-/* --- Styles for the "My Programme" info boxes --- */
+/* --- "My Programme" info boxes --- */
 .programme-info-item {
     background-color: #fff;
     border-bottom: 1px solid #e9ecef;
@@ -49,11 +43,9 @@ html, body {
     align-items: center;
     gap: 1rem;
 }
-
 .programme-info-item:last-child {
     border-bottom: none;
 }
-
 .info-icon {
     font-size: 1rem;
     color: #4a5c6a;
@@ -66,7 +58,6 @@ html, body {
     justify-content: center;
     flex-shrink: 0;
 }
-
 .info-text .info-title {
     display: block;
     font-size: 0.85rem;
@@ -74,7 +65,6 @@ html, body {
     font-weight: 600;
     font-style: italic;
 }
-
 .info-text .info-content {
     display: block;
     font-weight: 400;
@@ -89,7 +79,6 @@ html, body {
     border-radius: 0.25rem;
     margin-bottom: 1.5rem;
 }
-
 .widget-header {
     background-color: #4A4C6A;
     color: white;
@@ -99,7 +88,6 @@ html, body {
     border-top-left-radius: 0.25rem;
     border-top-right-radius: 0.25rem;
 }
-
 .widget-body {
     padding: 1rem;
 }
@@ -111,20 +99,17 @@ html, body {
     gap: 5px;
     text-align: center;
 }
-
 .calendar-grid > div { padding: 5px; }
 .calendar-day-name { font-weight: bold; font-size: 0.8rem; }
 .calendar-day-active { background-color: #69b654; color: white; border-radius: 50%; }
 
-/* --- Styles for Course Accordion --- */
+/* --- Course Accordion --- */
 .course-accordion {
     margin-bottom: 0.5rem; /* Adds space between each course item */
 }
-
 .course-accordion:last-child {
     margin-bottom: 0; /* Removes margin from the last item for a cleaner look */
 }
-
 .accordion-header {
     background-color: #f1f1f1;
     padding: 1rem;
@@ -136,75 +121,63 @@ html, body {
     gap: 0.75rem;
     transition: background-color 0.2s;
 }
-
 .accordion-header:hover {
     background-color: #e9ecef;
 }
-
 .accordion-icon {
     font-size: 1rem;
     transition: transform 0.2s ease-in-out;
 }
-
 .accordion-icon.open {
     transform: rotate(90deg);
 }
-
 .accordion-content {
     padding: 0;
     border: 1px solid #dee2e6;
     border-top: none;
 }
-
 .accordion-content ul {
     list-style-type: none;
     padding-left: 0;
     margin: 0;
 }
-
 .accordion-content li {
-    padding: 0.75rem 1.25rem 0.75rem 3.5rem; /* Increased left padding */
+    padding: 0.75rem 1.25rem 0.75rem 3.5rem;
     border-bottom: 1px solid #e9ecef;
     cursor: pointer;
-    font-size: 0.9rem; /* Made font smaller */
+    font-size: 0.9rem;
 }
-
 .accordion-content li:last-child {
     border-bottom: none;
 }
-
 .accordion-content li:hover {
     background-color: #f8f9fa;
 }
 
-/* --- NEW Styles for the Left Sidebar Image --- */
+/* --- Left Sidebar Image --- */
 .left-sidebar-image {
     width: auto;
-    height: calc(100vh - 56px); /* Full viewport height minus the navbar height */
-    object-fit: cover; /* Prevents the image from stretching */
+    height: calc(100vh - 56px);
+    object-fit: cover;
     position: sticky;
-    top: 56px; /* Sticks to the bottom of the navbar */
-
+    top: 56px;
 }
 
-/* --- NEW Footer Styles --- */
+/* --- Footer --- */
 .page-footer {
-    background-color: #343a40; /* A dark color similar to the navbar */
-    color: #adb5bd; /* A light grey for the text */
+    background-color: #343a40;
+    color: #adb5bd;
     padding: 2rem 0;
     text-align: center;
-    margin-top: auto; /* Pushes the footer to the bottom */
+    margin-top: auto;
     font-size: 0.9rem;
 }
-
 .page-footer a {
     color: #fff;
     text-decoration: none;
 }
-
 .page-footer a:hover {
     text-decoration: underline;
 }
-
 
 
