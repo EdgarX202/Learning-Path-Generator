@@ -1,18 +1,27 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
-import { useAuth } from '../AuthContext.jsx'; // Import the useAuth hook
+import { useAuth } from '../AuthContext.jsx';
 import './Courses.css';
 import { FaBell, FaCheckCircle, FaUserCircle, FaSignOutAlt, FaQuestionCircle, FaFileAlt, FaChevronRight } from 'react-icons/fa';
 
+/*
+    --- Course Accordion ---
+    Renders a single course as a collapsible accordion.
+    When opened, it fetches and displays the modules for that course.
+*/
 const CourseAccordionItem = ({ course }) => {
+    // States
     const [isOpen, setIsOpen] = useState(false);
     const [modules, setModules] = useState([]);
     const [isLoading, setIsLoading] = useState(false);
+    // Hook
     const navigate = useNavigate();
 
+    // Handles the accordions visibility and fetches modules on open
     const handleToggle = async () => {
         const newIsOpen = !isOpen;
         setIsOpen(newIsOpen);
+        // Fetch modules only if the accordion is being opened and modules havent been loaded yet
         if (newIsOpen && modules.length === 0) {
             setIsLoading(true);
             try {
@@ -27,31 +36,30 @@ const CourseAccordionItem = ({ course }) => {
             }
         }
     };
+
+    // Determines correct navigation path for a given module name
     const getModulePath = (moduleName) => {
         const lowerModuleName = moduleName.toLowerCase();
 
-        // Main course pages (this logic is for navigating from the course title itself, which we aren't doing right now)
+        // It maps specific module names to their client-side routes
         if (lowerModuleName.includes('software engineering') && modules.length === 0) return '/softeng';
         if (lowerModuleName.includes('website development')) return '/webdev';
         if (lowerModuleName.includes('artificial intelligence')) return '/ai';
-
-        // Specific module pages for Software Engineering
+        // Software Engineering
         if (lowerModuleName.includes('introduction to the software lifecycle')) return '/softeng/intro';
         if (lowerModuleName.includes('requirements engineering')) return '/softeng/reqeng';
         if (lowerModuleName.includes('software design and architecture')) return '/softeng/sdarchitecture';
         if (lowerModuleName.includes('implementation and coding standards')) return '/softeng/codingstandards';
         if (lowerModuleName.includes('software testing and quality assurance')) return '/softeng/testqa';
         if (lowerModuleName.includes('project management and devops')) return '/softeng/projectmgmnt';
-
-        // Specific module pages for Artificial Intelligence
+        // Artificial Intelligence
         if (lowerModuleName.includes('introduction to ai and intelligent agents')) return '/ai/intro';
         if (lowerModuleName.includes('problem solving with search')) return '/ai/problemsolving';
         if (lowerModuleName.includes('knowledge representation and logic')) return '/ai/knowledgerep';
         if (lowerModuleName.includes('introduction to machine learning')) return '/ai/introtoml';
         if (lowerModuleName.includes('natural language processing')) return '/ai/nlp';
         if (lowerModuleName.includes('ai ethics and the future')) return '/ai/ethics';
-
-        // Specific module pages for Website Development
+        // Website Development
         if (lowerModuleName.includes('html fundamentals')) return '/webdev/intro';
         if (lowerModuleName.includes('advanced css and layouts')) return '/webdev/csslayouts';
         if (lowerModuleName.includes('javascript fundamentals')) return '/webdev/jsfund';
@@ -59,8 +67,10 @@ const CourseAccordionItem = ({ course }) => {
         if (lowerModuleName.includes('introduction to backend development')) return '/webdev/introtobackend';
         if (lowerModuleName.includes('final project: build a web app')) return '/webdev/finalproject';
 
+        // If no route
         return '#';
     };
+
     return (
         <div className="course-accordion">
             <div className="accordion-header" onClick={handleToggle}>
@@ -73,6 +83,7 @@ const CourseAccordionItem = ({ course }) => {
                         <ul>
                             {modules.length > 0 ? (
                                 modules.map(module => (
+                                    // When a module is clicked, navigate to its page
                                     <li key={module.module_id} onClick={() => navigate(getModulePath(module.module_name))}>
                                         {module.module_name}
                                     </li>
@@ -88,6 +99,10 @@ const CourseAccordionItem = ({ course }) => {
     );
 };
 
+/*
+    --- Calendar Widget ---
+    Static, hardcoded display of a calendar
+*/
 const CalendarWidget = () => (
     <div className="sidebar-widget">
         <div className="widget-header">Calendar</div>
@@ -103,12 +118,20 @@ const CalendarWidget = () => (
     </div>
 );
 
+/*
+    --- Courses: Main Page ---
+    The main component that displays the users programme info and enrolled courses
+*/
 const Courses = () => {
+    // States
     const [courses, setCourses] = useState([]);
     const [error, setError] = useState('');
-    const navigate = useNavigate();
-    const { user, logout } = useAuth(); // Get user and logout from the context
 
+    // Hooks
+    const navigate = useNavigate();
+    const { user, logout } = useAuth();
+
+    // Static information about the users programme
     const programmeInfo = [
         { icon: <FaQuestionCircle />, title: 'Programme Level', content: 'BSc - Year 2' },
         { icon: <FaFileAlt />, title: 'Programme Information', content: 'TBC' },
@@ -116,7 +139,9 @@ const Courses = () => {
         { icon: <FaUserCircle />, title: 'Personal Development Contact', content: 'Nio Maximiliamus (N.Maximiliamus@edu.ac.uk)' }
     ];
 
+    // Fetches users courses when the user changes
     useEffect(() => {
+        // Fetch if we have a valid user ID
         if (user?.userId) {
             const fetchCourses = async () => {
                 try {
@@ -130,15 +155,17 @@ const Courses = () => {
             };
             fetchCourses();
         }
-    }, [user]); // Re-run the effect if the user object changes
+    }, [user]);
 
+    // Handles user logout, and re-directs them to login page
     const handleLogout = () => {
-        logout(); // Call the logout function from the context
+        logout();
         navigate('/login');
     };
 
     return (
         <div className="ai-page-container">
+            {/* TOP NAV BAR */}
             <nav className="navbar navbar-expand-lg navbar-dark bg-dark fixed-top">
                 <div className="container-fluid">
                     <a className="navbar-brand" href="#">Moodle AI</a>
@@ -153,15 +180,18 @@ const Courses = () => {
                 </div>
             </nav>
 
+            {/* MAIN PAGE CONTENT */}
             <div className="container-fluid p-4" style={{ marginTop: '56px' }}>
                 <div className="row">
                     <aside className="col-lg-1">
                         <img
-                                src="../../public/21.jpg"
-                                alt="Some Image"
-                                className="left-sidebar-image"
-                            />
-                        </aside> {/* <----- EMPTY LEFT COLUMN HERE */}
+                             src="../../public/21.jpg"
+                             alt="Some Image"
+                             className="left-sidebar-image"
+                        />
+                    </aside>
+
+                    {/* main content column */}
                     <main className="col-lg-8">
                         <section className="content-section">
                             <div className="section-header">My Programme</div>
@@ -178,6 +208,7 @@ const Courses = () => {
                             </div>
                         </section>
 
+                        {/* course overview section */}
                         <section className="content-section">
                             <div className="section-header">Course Overview</div>
                             <div className="section-body p-0">
@@ -193,6 +224,7 @@ const Courses = () => {
                         </section>
                     </main>
 
+                    {/* right sidebar with widgets */}
                     <aside className="col-lg-3">
                         <CalendarWidget />
                         <div className="sidebar-widget">
@@ -208,6 +240,8 @@ const Courses = () => {
                     </aside>
                 </div>
             </div>
+
+            {/* --- PAGE FOOTER --- */}
             <footer className="page-footer">
                 <div className="container">
                     <p>&copy; {new Date().getFullYear()} Edgar Park | ENU. All Rights Reserved.</p>
@@ -219,9 +253,3 @@ const Courses = () => {
 };
 
 export default Courses;
-
-
-
-
-
-
