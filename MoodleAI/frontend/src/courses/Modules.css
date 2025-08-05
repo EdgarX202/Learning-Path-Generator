@@ -1,8 +1,8 @@
-/* --- Styles for Weekly Module Accordion (e.g., on SoftEng.jsx) --- */
+
+/* --- Styles for Weekly Module Accordion --- */
 .week-accordion-item {
     margin-bottom: 0.5rem;
 }
-
 .week-accordion-header {
     background-color: #306083;
     color: white;
@@ -15,7 +15,6 @@
     border-radius: 0.25rem;
     border-bottom: solid 2.5px black;
 }
-
 .week-accordion-content {
     padding: 1.25rem;
     background-color: #fff;
@@ -24,14 +23,13 @@
     border-radius: 0 0 0.25rem 0.25rem;
 }
 
-/* --- NEW Styles for Sub-Accordion (Theory/Practical) --- */
+/* --- Styles for Sub-Accordion (Theory/Practical) --- */
 .sub-accordion-item {
     border-bottom: 1px solid #f1f1f1;
 }
 .sub-accordion-item:last-child {
     border-bottom: none;
 }
-
 .sub-accordion-header {
     background-color: #fff;
     color: #4a5c6a;
@@ -42,68 +40,64 @@
     align-items: center;
     gap: 0.75rem;
 }
-
 .sub-accordion-content {
-    padding: 0.75rem 1.25rem 0.75rem 2.5rem; /* Indent content */
+    padding: 0.75rem 1.25rem 0.75rem 2.5rem;
     font-size: 0.9rem;
     color: #343a40;
-    background-color: #fafafa; /* Slightly off-white background for content */
+    background-color: #fafafa;
     border-right-style: double;
     border-width: 1px;
 }
 
-/* --- Copied from Courses.css for layout consistency --- */
+/* --- Container --- */
 .ai-page-container {
     background-color: #f8f9fa;
 }
 
+/* --- Widgets --- */
 .sidebar-widget {
     background-color: #fff;
     border: 1px solid #dee2e6;
     border-radius: 0.25rem;
     margin-bottom: 1.5rem;
 }
-
 .widget-header {
     background-color: #4A4C6A;
     color: white;
-    padding: 0.3rem 0.7rem; /* Further reduced padding */
+    padding: 0.3rem 0.7rem;
     font-weight: 600;
-    font-size: 0.8rem; /* Further reduced font size */
+    font-size: 0.8rem;
     border-top-left-radius: 0.25rem;
     border-top-right-radius: 0.25rem;
 }
-
 .widget-header-AI {
     background-color: #d97338;
     color: white;
-    padding: 0.3rem 0.7rem; /* Further reduced padding */
+    padding: 0.3rem 0.7rem;
     font-weight: 600;
-    font-size: 0.8rem; /* Further reduced font size */
+    font-size: 0.8rem;
     border-top-left-radius: 0.25rem;
     border-top-right-radius: 0.25rem;
 }
-
 .widget-body {
-    padding: 0.7rem; /* Further reduced padding */
-    font-size: 0.85rem; /* Further reduced font size for body text */
+    padding: 0.7rem;
+    font-size: 0.85rem;
 }
 
-/* --- UPDATED Calendar Styles --- */
+/* --- Calendar --- */
 .calendar-grid {
     display: grid;
     grid-template-columns: repeat(7, 1fr);
-    gap: 2px; /* Further reduced gap */
+    gap: 2px;
     text-align: center;
 }
-
 .calendar-grid > div {
-    padding: 2px; /* Further reduced padding */
-    font-size: 0.75rem; /* Further reduced font size for dates */
+    padding: 2px;
+    font-size: 0.75rem;
 }
 .calendar-day-name {
     font-weight: bold;
-    font-size: 0.7rem; /* Further reduced font size for day names */
+    font-size: 0.7rem;
 }
 .calendar-day-active {
     background-color: #69b654;
@@ -111,66 +105,62 @@
     border-radius: 50%;
 }
 
+/* --- Accordion icon --- */
 .accordion-icon {
     font-size: 1rem;
     transition: transform 0.2s ease-in-out;
 }
-
 .accordion-icon.open {
     transform: rotate(90deg);
 }
 
+/* --- Module Title --- */
 .module-title-header {
     display: flex;
     align-items: center;
     gap: 1rem;
-    background-color: #f1f1f1; /* A light grey to complement the theme */
+    background-color: #f1f1f1;
     padding: 1rem 1.25rem;
     border-radius: 0.25rem;
-    margin-bottom: 2rem; /* Space between the title and the accordions */
+    margin-bottom: 2rem;
     border: 1px solid #dee2e6;
 }
-
 .module-title-header .icon {
     font-size: 1.75rem;
     color: #4a5c6a;
 }
-
 .module-title-header h2 {
-    margin-bottom: 0; /* Override default h2 margin */
+    margin-bottom: 0;
     font-size: 1.5rem;
 }
 
-/* --- NEW Styles for the Left Sidebar Image --- */
+/* --- Left Sidebar Image --- */
 .left-sidebar-image {
     width: auto;
-    height: calc(100vh - 56px); /* Full viewport height minus the navbar height */
-    object-fit: cover; /* Prevents the image from stretching */
+    height: calc(100vh - 56px);
+    object-fit: cover;
     position: sticky;
-    top: 56px; /* Sticks to the bottom of the navbar */
-
+    top: 56px;
 }
 
-/* --- NEW Footer Styles --- */
+/* --- Footer --- */
 .page-footer {
-    background-color: #343a40; /* A dark color similar to the navbar */
-    color: #adb5bd; /* A light grey for the text */
+    background-color: #343a40;
+    color: #adb5bd;
     padding: 2rem 0;
     text-align: center;
-    margin-top: auto; /* Pushes the footer to the bottom */
+    margin-top: auto;
     font-size: 0.9rem;
 }
-
 .page-footer a {
     color: #fff;
     text-decoration: none;
 }
-
 .page-footer a:hover {
     text-decoration: underline;
 }
 
-/* --- NEW Styles for Colour Notes Widget --- */
+/* --- Colour Notes Widget --- */
 .notes-textarea {
     width: 100%;
     min-height: 80px;
@@ -179,13 +169,11 @@
     padding: 0.5rem;
     margin-bottom: 0.5rem;
 }
-
 .color-palette {
     display: flex;
     gap: 0.5rem;
     margin-bottom: 0.5rem;
 }
-
 .color-option {
     width: 24px;
     height: 24px;
@@ -193,11 +181,9 @@
     cursor: pointer;
     border: 2px solid transparent;
 }
-
 .color-option.selected {
-    border-color: #0d6efd; /* Blue border for selected color */
+    border-color: #0d6efd;
 }
-
 .note-item {
     padding: 0.75rem;
     border-radius: 0.25rem;
@@ -205,12 +191,10 @@
     color: #212529;
     position: relative;
 }
-
 .note-item p {
     margin: 0;
-    white-space: pre-wrap; /* Preserves line breaks */
+    white-space: pre-wrap;
 }
-
 .delete-note-btn {
     position: absolute;
     top: 5px;
@@ -221,7 +205,7 @@
     cursor: pointer;
 }
 
-/* Note Colors */
+/* --- Note Colors --- */
 .note-yellow { background-color: #fff3cd; }
 .note-blue { background-color: #cce5ff; }
 .note-green { background-color: #d4edda; }
@@ -229,17 +213,15 @@
 .note-orange { background-color: #ffe5d0; }
 .note-cyan { background-color: #cff4fc; }
 
-/* --- NEW Styles for Learning Path Generator --- */
+/* --- Learning Path Generator --- */
 .learning-path-form .form-group {
     margin-bottom: 0.75rem;
 }
-
 .learning-path-form .form-label {
     font-weight: 600;
     font-size: 0.8rem;
     margin-bottom: 0.25rem;
 }
-
 .learning-path-form .form-select {
     width: 100%;
     padding: 0.375rem 0.75rem;
@@ -247,51 +229,44 @@
     border-radius: 0.25rem;
     border: 1px solid #ced4da;
 }
-
 .learning-path-form .btn-generate {
     width: 100%;
     margin-top: 0.5rem;
 }
 
-/* --- NEW Styles for File Upload Component --- */
+/* --- File Upload Component --- */
 .file-upload-container {
     margin-top: 1rem;
     padding-top: 1rem;
     border-top: 1px dashed #dee2e6;
 }
-
 .file-upload-form {
     display: flex;
     gap: 0.5rem;
     align-items: center;
 }
-
 .file-upload-input {
     font-size: 0.8rem;
 }
-
 .file-list {
     list-style-type: none;
     padding-left: 0;
     margin-top: 1rem;
 }
-
 .file-list-item a {
     text-decoration: none;
     font-weight: 500;
 }
-
 .file-list-item {
     display: flex;
     justify-content: space-between;
     align-items: center;
     padding: 0.25rem 0;
 }
-
 .delete-file-btn {
     background: none;
     border: none;
-    color: #dc3545; /* Red color for delete action */
+    color: #dc3545;
     cursor: pointer;
     padding: 0 0.5rem;
 }
