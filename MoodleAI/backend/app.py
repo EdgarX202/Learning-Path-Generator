@@ -324,12 +324,37 @@ def delete_file(file_id):
             conn.close()
 
 
-# --- CORRECTED: AI Learning Path Generator Endpoint (for OpenAI) ---
+# --- NEW: Helper function to summarize text ---
+def summarize_text(full_text):
+    """
+    Uses the LLM to perform a quick summarization task.
+    """
+    print("Starting summarization of PDF content...")
+    try:
+        response = client.chat.completions.create(
+            model="llama3",
+            messages=[
+                {"role": "system",
+                 "content": "You are a text summarization assistant. Your job is to extract the key topics, headings, and core concepts from the provided text. Present them as a concise list."},
+                {"role": "user",
+                 "content": f"Please summarize the key topics from the following university module text:\n\n{full_text}"}
+            ]
+        )
+        summary = response.choices[0].message.content
+        print("Summarization complete.")
+        return summary
+    except Exception as e:
+        print(f"Error during summarization: {e}")
+        # If summarization fails, we can fall back to using the full text,
+        # but this might still time out. A better approach is to signal an error.
+        raise e  # Re-raise the exception to be caught by the main function
+
+
+# --- UPDATED: AI Learning Path Generator Endpoint ---
 @app.route('/api/generate-path', methods=['POST'])
 def generate_path():
     """
-    Generates a learning path by reading module files, and adapting the concepts
-    to a target programming language specified by the user using a local Ollama model.
+    Generates a learning path by first summarizing module files, then generating the path.
     """
     if not client:
         return jsonify({"error": "Ollama client not configured. Is the Ollama application running?"}), 500
@@ -356,7 +381,7 @@ def generate_path():
             return jsonify({"error": "No PDF files found for this module to generate a path from."}), 404
 
         # Step 2: Extract text from each PDF to get the core concepts
-        module_context = ""
+        full_module_text = ""
         for file_info in files:
             file_path = file_info['file_path']
             if os.path.exists(file_path):
@@ -365,17 +390,20 @@ def generate_path():
                     text = ""
                     for page in doc:
                         text += page.get_text()
-                    module_context += f"\n--- Content from {file_info['week_title']} ---\n{text}\n"
+                    full_module_text += f"\n--- Content from {file_info['week_title']} ---\n{text}\n"
                 except Exception as e:
                     print(f"Could not read or process existing file {file_path}: {e}")
             else:
                 print(f"File not found on disk, skipping: {file_path}")
 
-        if not module_context.strip():
+        if not full_module_text.strip():
             return jsonify({
                                "error": "Could not extract any text from the module's PDF files. All files were missing or unreadable."}), 500
 
-        # Step 3: Construct the prompt for the Ollama API
+        # --- NEW Step 2.5: Summarize the extracted text ---
+        module_summary = summarize_text(full_module_text)
+
+        # Step 3: Construct the prompt for the Ollama API using the SUMMARY
         system_prompt = f"""
         You are an expert academic advisor and curriculum designer who can translate educational concepts between programming languages.
         Your task is to generate a structured, practical learning path for a student.
@@ -387,20 +415,18 @@ def generate_path():
         - Difficulty Level: '{difficulty}'
         - Target Programming Language: '{target_language}'
 
-        CRITICAL INSTRUCTION: The following source material contains the core concepts for a university module. This material might be in a different programming language. Your primary job is to identify the fundamental, language-agnostic principles from this source text (e.g., control flow, data structures, testing, version control).
+        CRITICAL INSTRUCTION: The following is a SUMMARY of the core concepts for a university module. Your primary job is to take these summarized topics and create a detailed learning path.
 
-        Then, you must create a new learning path that teaches these exact principles, but all explanations, project ideas, and code examples MUST be in the student's target language: '{target_language}'.
+        All explanations, project ideas, and code examples in your output MUST be in the student's target language: '{target_language}'.
 
-        For example, if the source material explains 'for loops' using Python, your output must explain 'for loops' and provide project ideas using '{target_language}'. Do not just copy the source text. You must adapt and translate the concepts.
-
-        --- SOURCE MATERIAL (for concept extraction only) ---
-        {module_context}
-        --- END OF SOURCE MATERIAL ---
+        --- SOURCE SUMMARY (for concept extraction only) ---
+        {module_summary}
+        --- END OF SOURCE SUMMARY ---
 
         The JSON object you return must have a root key 'learningPath' which is an array of 'modules'.
         Each module object in the array must contain:
         1. "module_number": An integer (e.g., 1).
-        2. "title": A string (e.g., "Week 1: Core Concepts in {target_language}"). This should correspond to the weekly topics from the source material, but adapted for the target language.
+        2. "title": A string (e.g., "Week 1: Core Concepts in {target_language}"). This should correspond to the weekly topics from the source summary.
         3. "description": A brief string explaining the module's goals in the context of the target language.
         4. "topics": An array of topic objects, breaking down the module's key concepts.
 
@@ -411,9 +437,10 @@ def generate_path():
         4. "project": A string describing a small, practical exercise or a thought-provoking question that requires writing code in '{target_language}'.
         """
 
-        # Step 4: Call the Ollama API
+        # Step 4: Call the Ollama API for the final generation
+        print("Starting final path generation from summary...")
         response = client.chat.completions.create(
-            model="llama3",  # Use the local model name you downloaded
+            model="llama3",
             response_format={"type": "json_object"},
             messages=[
                 {"role": "system", "content": system_prompt},
@@ -422,25 +449,16 @@ def generate_path():
         )
 
         response_content = response.choices[0].message.content
+        print("Final path generation complete.")
         return jsonify(json.loads(response_content))
 
-
     except Timeout:
-
-        # Catch the specific timeout error
-
         print("Ollama request timed out.")
-
-        return jsonify({"error": "The request to the local AI model timed out (60s). Your computer may be too slow for the amount of PDF content. Try a module with fewer files."}), 408
-
+        return jsonify({
+                           "error": "The request to the local AI model timed out (60s). Your computer may be too slow for the amount of PDF content. Try a module with fewer files."}), 408
     except Exception as e:
-
-        # General error handling for Ollama
-
         print(f"An unexpected error occurred in AI path generation: {e}")
-
         return jsonify({"error": "An internal server error occurred during path generation. Is Ollama running?"}), 500
-
 
 # --- Run the App ---
 if __name__ == '__main__':
