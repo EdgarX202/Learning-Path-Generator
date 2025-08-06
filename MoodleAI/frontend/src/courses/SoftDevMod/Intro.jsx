@@ -136,12 +136,12 @@ const ColourNotesWidget = ({ moduleId }) => {
 // --- LEARNING PATH WIDGET ---
 const LearningPathWidget = ({ moduleId }) => { // Now accepts moduleId as a prop
     // States
-    const [difficulty, setDifficulty] = useState('Beginner');
-    const [language, setLanguage] = useState('JavaScript');
-    const [showModal, setShowModal] = useState(false);
-    const [pathData, setPathData] = useState(null);
-    const [isLoading, setIsLoading] = useState(false);
-    const [error, setError] = useState('');
+    const [difficulty, setDifficulty] = React.useState('Beginner');
+    const [language, setLanguage] = React.useState('JavaScript');
+    const [showModal, setShowModal] = React.useState(false);
+    const [pathData, setPathData] = React.useState(null);
+    const [isLoading, setIsLoading] = React.useState(false);
+    const [error, setError] = React.useState('');
 
     // Generate button functionality
     const handleGenerate = async () => {
@@ -215,21 +215,48 @@ const LearningPathWidget = ({ moduleId }) => { // Now accepts moduleId as a prop
                     </div>
                 </div>
             </div>
-            {/* Render the modal */}
-            <LearningPathModal
-                pathData={pathData}
-                isLoading={isLoading}
-                error={error}
-                onClose={() => setShowModal(false)}
-            />
+            {/* Render the modal only when showModal is true */}
+            {showModal && (
+                <LearningPathModal
+                    pathData={pathData}
+                    isLoading={isLoading}
+                    error={error}
+                    onClose={() => setShowModal(false)}
+                />
+            )}
         </>
     );
 };
 
-// --- NEW: MODAL FOR DISPLAYING THE LEARNING PATH ---
-const LearningPathModal = ({ pathData, onClose, isLoading, error }) => {
-    if (!pathData && !isLoading && !error) return null;
+// --- NEW: Result Accordion Item ---
+const ResultAccordionItem = ({ module }) => {
+    const [isOpen, setIsOpen] = React.useState(false);
 
+    return (
+        <div className="result-module">
+            <button className="result-module-header" onClick={() => setIsOpen(!isOpen)}>
+                <span>{module.module_number}. {module.title}</span>
+                <FaChevronRight className={`accordion-icon ${isOpen ? 'open' : ''}`} />
+            </button>
+            {isOpen && (
+                <div className="result-module-content">
+                    <p className="module-description">{module.description}</p>
+                    {module.topics.map(topic => (
+                        <div key={topic.topic_number} className="result-topic">
+                            <strong>{topic.topic_number}. {topic.title}</strong>
+                            <p><strong>Concept:</strong> {topic.concept}</p>
+                            <p className="topic-project"><strong>Project Idea:</strong> {topic.project}</p>
+                        </div>
+                    ))}
+                </div>
+            )}
+        </div>
+    );
+};
+
+
+// --- IMPROVED: MODAL FOR DISPLAYING THE LEARNING PATH ---
+const LearningPathModal = ({ pathData, onClose, isLoading, error }) => {
     return (
         <div className="modal-backdrop">
             <div className="modal-content">
@@ -242,6 +269,7 @@ const LearningPathModal = ({ pathData, onClose, isLoading, error }) => {
                         <div className="text-center p-5">
                             <FaSpinner className="spinner-icon" />
                             <p className="mt-3">Reading your module files and generating your path...</p>
+                            <p className="text-muted small">This may take a moment with local models.</p>
                         </div>
                     )}
                     {error && (
@@ -250,17 +278,7 @@ const LearningPathModal = ({ pathData, onClose, isLoading, error }) => {
                     {pathData?.learningPath && (
                         <div className="learning-path-results">
                             {pathData.learningPath.map(module => (
-                                <div key={module.module_number} className="result-module">
-                                    <h6>{module.module_number}. {module.title}</h6>
-                                    <p className="module-description">{module.description}</p>
-                                    {module.topics.map(topic => (
-                                        <div key={topic.topic_number} className="result-topic">
-                                            <strong>{topic.title}</strong>
-                                            <p><strong>Concept:</strong> {topic.concept}</p>
-                                            <p className="topic-project"><strong>Project Idea:</strong> {topic.project}</p>
-                                        </div>
-                                    ))}
-                                </div>
+                                <ResultAccordionItem key={module.module_number} module={module} />
                             ))}
                         </div>
                     )}

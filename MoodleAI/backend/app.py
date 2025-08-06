@@ -7,7 +7,7 @@ import json
 from werkzeug.utils import secure_filename
 
 # --- New Imports for AI and PDF Parsing (Now using OpenAI) ---
-from openai import OpenAI
+from openai import OpenAI, Timeout
 from dotenv import load_dotenv
 import fitz
 
@@ -25,6 +25,7 @@ try:
     client = OpenAI(
         base_url='http://localhost:11434/v1',
         api_key='ollama',
+        timeout=60.0,
     )
     # Test the connection
     client.models.list()
@@ -423,9 +424,21 @@ def generate_path():
         response_content = response.choices[0].message.content
         return jsonify(json.loads(response_content))
 
+
+    except Timeout:
+
+        # Catch the specific timeout error
+
+        print("Ollama request timed out.")
+
+        return jsonify({"error": "The request to the local AI model timed out (60s). Your computer may be too slow for the amount of PDF content. Try a module with fewer files."}), 408
+
     except Exception as e:
+
         # General error handling for Ollama
+
         print(f"An unexpected error occurred in AI path generation: {e}")
+
         return jsonify({"error": "An internal server error occurred during path generation. Is Ollama running?"}), 500
 
 

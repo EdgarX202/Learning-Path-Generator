@@ -270,3 +270,160 @@
     cursor: pointer;
     padding: 0 0.5rem;
 }
+
+/* --- NEW STYLES FOR AI MODAL (DARK THEME) --- */
+
+.modal-backdrop {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.8); /* Darker backdrop */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1050;
+    padding: 1rem;
+}
+
+.modal-content {
+    background-color: #2d3748; /* Dark background */
+    color: #e2e8f0; /* Light text color */
+    padding: 20px;
+    border-radius: 8px;
+    border: 1px solid #4a5568;
+    width: 100%;
+    max-width: 700px;
+    max-height: 90vh;
+    display: flex;
+    flex-direction: column;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.5);
+}
+
+.modal-header {
+    display: flex;
+    justify-content: center; /* Center title */
+    align-items: center;
+    position: relative; /* Needed for close button positioning */
+    border-bottom: 1px solid #4a5568; /* Darker border */
+    padding-bottom: 10px;
+    margin-bottom: 15px;
+}
+
+.modal-title {
+    margin-bottom: 0;
+    font-size: 1.25rem;
+    font-weight: 500;
+    color: #ffffff; /* White title text */
+}
+
+.btn-close {
+    border: none;
+    background: transparent;
+    font-size: 1.5rem;
+    cursor: pointer;
+    color: #a0aec0; /* Lighter close icon */
+    position: absolute; /* Position in the corner */
+    right: 20px;
+    top: 15px;
+}
+.btn-close:hover {
+    color: #ffffff;
+}
+
+.modal-body {
+    overflow-y: auto;
+    flex-grow: 1;
+}
+
+.modal-footer {
+    border-top: 1px solid #4a5568; /* Darker border */
+    padding-top: 15px;
+    margin-top: 15px;
+    text-align: center; /* Center close button */
+}
+
+.spinner-icon {
+    font-size: 3rem;
+    color: #f6ad55; /* A nice orange for dark mode */
+    animation: spin 1.5s linear infinite;
+}
+
+.spinner-icon-sm {
+    animation: spin 1.5s linear infinite;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+/* --- NEW STYLES FOR RESULT ACCORDION (DARK THEME) --- */
+.learning-path-results .result-module {
+    border: 1px solid #4a5568;
+    border-radius: 0.5rem;
+    margin-bottom: 0.75rem;
+    overflow: hidden;
+}
+
+.result-module-header {
+    width: 100%;
+    text-align: left;
+    padding: 1rem;
+    background-color: #4a5568; /* Darker header */
+    border: none;
+    cursor: pointer;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-weight: 600;
+    color: #ffffff; /* White text */
+}
+
+.result-module-header:hover {
+    background-color: #718096;
+}
+
+.result-module-header .accordion-icon {
+    transition: transform 0.2s ease-in-out;
+}
+
+.result-module-header .accordion-icon.open {
+    transform: rotate(90deg);
+}
+
+.result-module-content {
+    padding: 1rem;
+    border-top: 1px solid #4a5568;
+    background-color: #1a202c; /* Even darker content background */
+}
+
+.result-module-content .module-description {
+    font-style: italic;
+    color: #a0aec0; /* Lighter grey text */
+    margin-bottom: 1rem;
+    padding-bottom: 1rem;
+    border-bottom: 1px dashed #4a5568;
+}
+
+.result-module-content .result-topic {
+    margin-bottom: 1rem;
+}
+.result-module-content .result-topic strong {
+    color: #ffffff;
+}
+
+.result-module-content .result-topic:last-child {
+    margin-bottom: 0;
+}
+
+.result-module-content .topic-project {
+    background-color: #2d3748; /* Dark background for project */
+    border-left: 4px solid #f6ad55; /* Orange accent */
+    border-radius: 4px;
+    padding: 0.75rem;
+    font-size: 0.9em;
+    margin-top: 0.5rem;
+    color: #e2e8f0;
+}
