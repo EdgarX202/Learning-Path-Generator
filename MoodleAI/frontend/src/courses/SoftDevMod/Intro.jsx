@@ -1,12 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
-import { useAuth } from '../../AuthContext.jsx'; // Corrected path
-import '../Modules.css'; // Corrected path
-import { FaBell, FaUserCircle, FaSignOutAlt, FaChevronRight, FaCode, FaTimes, FaFileUpload, FaFilePdf, FaFileCode, FaTrash } from 'react-icons/fa';
+import { useAuth } from '../../AuthContext.jsx';
+import '../Modules.css';
+import { FaBell, FaUserCircle, FaSignOutAlt, FaChevronRight, FaCode, FaTimes, FaFileUpload, FaFilePdf, FaFileCode, FaTrash, FaLightbulb, FaSpinner } from 'react-icons/fa';
 
 // --- COLOUR NOTES WIDGET ---
 const ColourNotesWidget = ({ moduleId }) => {
-    // Hook - Get current user from authentication
+    // Hook
     const { user } = useAuth();
     // States
     const [notes, setNotes] = useState([]);
@@ -134,42 +134,139 @@ const ColourNotesWidget = ({ moduleId }) => {
 };
 
 // --- LEARNING PATH WIDGET ---
-// Its a sidebar widget for an AI-powered learning path generator
-const LearningPathWidget = () => {
+const LearningPathWidget = ({ moduleId }) => { // Now accepts moduleId as a prop
     // States
     const [difficulty, setDifficulty] = useState('Beginner');
-    const [language, setLanguage] = useState('Python');
+    const [language, setLanguage] = useState('JavaScript');
+    const [showModal, setShowModal] = useState(false);
+    const [pathData, setPathData] = useState(null);
+    const [isLoading, setIsLoading] = useState(false);
+    const [error, setError] = useState('');
 
     // Generate button functionality
-    const handleGenerate = () => {
-        console.log(`Generating learning path for: ${difficulty} level in ${language}`);
-        alert(`Generating path for: ${difficulty} ${language}`);
+    const handleGenerate = async () => {
+        if (!moduleId) {
+            setError("Module ID is missing. Cannot generate path.");
+            setShowModal(true);
+            return;
+        }
+        setShowModal(true);
+        setIsLoading(true);
+        setError('');
+        setPathData(null);
+
+        try {
+            const response = await fetch('http://127.0.0.1:5001/api/generate-path', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    moduleId: moduleId,
+                    difficulty: difficulty,
+                    language: language,
+                }),
+            });
+
+            const data = await response.json();
+
+            if (!response.ok) {
+                throw new Error(data.error || 'Failed to generate path.');
+            }
+
+            setPathData(data);
+
+        } catch (err) {
+            setError(err.message);
+        } finally {
+            setIsLoading(false);
+        }
     };
 
     return (
-        <div className="sidebar-widget">
-            <div className="widget-header-AI">Learning Path Gen - AI Assistant</div>
-            <div className="widget-body">
-                <div className="learning-path-form">
-                    <div className="form-group">
-                        <label htmlFor="difficulty-select" className="form-label">Select Difficulty:</label>
-                        <select id="difficulty-select" className="form-select" value={difficulty} onChange={(e) => setDifficulty(e.target.value)}>
-                            <option>Beginner</option>
-                            <option>Intermediate</option>
-                            <option>Advanced</option>
-                        </select>
+        <>
+            <div className="sidebar-widget">
+                <div className="widget-header-AI">
+                    <FaLightbulb /> Learning Path Gen
+                </div>
+                <div className="widget-body">
+                    <div className="learning-path-form">
+                        <div className="form-group">
+                            <label htmlFor="difficulty-select" className="form-label">Select Difficulty:</label>
+                            <select id="difficulty-select" className="form-select" value={difficulty} onChange={(e) => setDifficulty(e.target.value)}>
+                                <option>Beginner</option>
+                                <option>Intermediate</option>
+                                <option>Advanced</option>
+                            </select>
+                        </div>
+                        <div className="form-group">
+                            <label htmlFor="language-select" className="form-label">Learn Concepts In:</label>
+                            <select id="language-select" className="form-select" value={language} onChange={(e) => setLanguage(e.target.value)}>
+                                <option>JavaScript</option>
+                                <option>Python</option>
+                                <option>Java</option>
+                                <option>C#</option>
+                                <option>C++</option>
+                                <option>Rust</option>
+                                <option>Go</option>
+                            </select>
+                        </div>
+                        <button className="btn btn-warning btn-sm btn-generate" onClick={handleGenerate} disabled={isLoading}>
+                            {isLoading ? <FaSpinner className="spinner-icon-sm" /> : 'Generate'}
+                        </button>
                     </div>
-                    <div className="form-group">
-                        <label htmlFor="language-select" className="form-label">Select Language:</label>
-                        <select id="language-select" className="form-select" value={language} onChange={(e) => setLanguage(e.target.value)}>
-                            <option>Python</option>
-                            <option>Java</option>
-                            <option>JavaScript</option>
-                            <option>C#</option>
-                            <option>C++</option>
-                        </select>
-                    </div>
-                    <button className="btn btn-warning btn-sm btn-generate" onClick={handleGenerate}>Generate</button>
+                </div>
+            </div>
+            {/* Render the modal */}
+            <LearningPathModal
+                pathData={pathData}
+                isLoading={isLoading}
+                error={error}
+                onClose={() => setShowModal(false)}
+            />
+        </>
+    );
+};
+
+// --- NEW: MODAL FOR DISPLAYING THE LEARNING PATH ---
+const LearningPathModal = ({ pathData, onClose, isLoading, error }) => {
+    if (!pathData && !isLoading && !error) return null;
+
+    return (
+        <div className="modal-backdrop">
+            <div className="modal-content">
+                <div className="modal-header">
+                    <h5 className="modal-title">Your Personalised Learning Path</h5>
+                    <button type="button" className="btn-close" onClick={onClose}></button>
+                </div>
+                <div className="modal-body">
+                    {isLoading && (
+                        <div className="text-center p-5">
+                            <FaSpinner className="spinner-icon" />
+                            <p className="mt-3">Reading your module files and generating your path...</p>
+                        </div>
+                    )}
+                    {error && (
+                         <div className="alert alert-danger">{error}</div>
+                    )}
+                    {pathData?.learningPath && (
+                        <div className="learning-path-results">
+                            {pathData.learningPath.map(module => (
+                                <div key={module.module_number} className="result-module">
+                                    <h6>{module.module_number}. {module.title}</h6>
+                                    <p className="module-description">{module.description}</p>
+                                    {module.topics.map(topic => (
+                                        <div key={topic.topic_number} className="result-topic">
+                                            <strong>{topic.title}</strong>
+                                            <p><strong>Concept:</strong> {topic.concept}</p>
+                                            <p className="topic-project"><strong>Project Idea:</strong> {topic.project}</p>
+                                        </div>
+                                    ))}
+                                </div>
+                            ))}
+                        </div>
+                    )}
+                </div>
+                <div className="modal-footer">
+                    <button type="button" className="btn btn-secondary" onClick={onClose}>Close</button>
                 </div>
             </div>
         </div>
@@ -567,7 +664,7 @@ const Intro = () => {
                         <aside className="col-lg-3">
                             <CalendarWidget />
                             <ColourNotesWidget moduleId={moduleId} />
-                            <LearningPathWidget />
+                            <LearningPathWidget moduleId={moduleId} />
                         </aside>
                     </div>
                 </div>

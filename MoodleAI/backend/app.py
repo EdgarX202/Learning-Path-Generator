@@ -1,18 +1,38 @@
+import sys
+import os
 from flask import Flask, request, jsonify, send_from_directory
 from flask_cors import CORS
 import mysql.connector
 import json
-import os
 from werkzeug.utils import secure_filename
+
+# --- New Imports for AI and PDF Parsing (Now using OpenAI) ---
+from openai import OpenAI
+from dotenv import load_dotenv
+import fitz
+
+# --- Load Environment Variables ---
+load_dotenv()
 
 # --- Basic Flask App Setup ---
 app = Flask(__name__)
 CORS(app)
 
+# --- AI Configuration (Now using OpenAI) ---
+# The OpenAI client automatically looks for the OPENAI_API_KEY in the environment
+try:
+    client = OpenAI()
+    # Test the connection with a simple model list call
+    client.models.list()
+    print("OpenAI client configured successfully.")
+except Exception as e:
+    print(f"Error configuring OpenAI client: {e}")
+    client = None
+
 # --- File Upload Configuration ---
 UPLOAD_FOLDER = 'uploads'
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
-os.makedirs(UPLOAD_FOLDER, exist_ok=True) # Ensure the upload folder exists
+os.makedirs(UPLOAD_FOLDER, exist_ok=True)  # Ensure the upload folder exists
 
 # --- MySQL Database Configuration ---
 db_config = {
@@ -22,7 +42,11 @@ db_config = {
     'database': 'university_db'
 }
 
-# --- API Endpoints ---
+
+# --- Existing API Endpoints (Login, Courses, etc.) ---
+# ... (Your existing endpoints for /api/login, /api/courses, etc. remain here) ...
+# I am omitting them for brevity, but you should keep them in your file.
+
 @app.route('/api/login', methods=['POST'])
 def login():
     """ Handles user login requests. """
@@ -118,6 +142,7 @@ def get_modules():
         print(f"Error fetching modules: {e}")
         return jsonify({"error": "An internal server error occurred."}), 500
 
+
 @app.route('/api/notes', methods=['GET'])
 def get_notes():
     """ Fetch all the notes """
@@ -166,6 +191,7 @@ def add_note():
         print(f"Error adding note: {e}")
         return jsonify({"error": "Failed to add note"}), 500
 
+
 @app.route('/api/notes/<int:note_id>', methods=['DELETE'])
 def delete_note(note_id):
     """ Deletes notes from the database """
@@ -187,6 +213,7 @@ def delete_note(note_id):
     except Exception as e:
         print(f"Error deleting note: {e}")
         return jsonify({"error": "Failed to delete note"}), 500
+
 
 @app.route('/api/upload', methods=['POST'])
 def upload_file():
@@ -227,6 +254,7 @@ def upload_file():
             print(f"Database error on upload: {e}")
             return jsonify({"error": "Failed to save file information"}), 500
 
+
 @app.route('/api/files', methods=['GET'])
 def get_files():
     """ Retrieve all files from the database """
@@ -248,9 +276,11 @@ def get_files():
         print(f"Error fetching files: {e}")
         return jsonify({"error": "Failed to fetch files"}), 500
 
+
 @app.route('/uploads/<filename>')
 def uploaded_file(filename):
     return send_from_directory(app.config['UPLOAD_FOLDER'], filename)
+
 
 @app.route('/api/files/<int:file_id>', methods=['DELETE'])
 def delete_file(file_id):
@@ -286,6 +316,109 @@ def delete_file(file_id):
             cursor.close()
         if conn:
             conn.close()
+
+
+# --- CORRECTED: AI Learning Path Generator Endpoint (for OpenAI) ---
+@app.route('/api/generate-path', methods=['POST'])
+def generate_path():
+    """
+    Generates a learning path by reading module files, and adapting the concepts
+    to a target programming language specified by the user using OpenAI.
+    """
+    if not client:
+        return jsonify({"error": "OpenAI client not configured. Check API key."}), 500
+
+    data = request.get_json()
+    module_id = data.get('moduleId')
+    difficulty = data.get('difficulty')
+    target_language = data.get('language')
+
+    if not all([module_id, difficulty, target_language]):
+        return jsonify({"error": "moduleId, difficulty, and language are required"}), 400
+
+    try:
+        # Step 1: Retrieve file paths from the database
+        conn = mysql.connector.connect(**db_config)
+        cursor = conn.cursor(dictionary=True)
+        query = "SELECT file_path, week_title FROM module_files WHERE module_id = %s AND file_name LIKE '%%.pdf'"
+        cursor.execute(query, (module_id,))
+        files = cursor.fetchall()
+        cursor.close()
+        conn.close()
+
+        if not files:
+            return jsonify({"error": "No PDF files found for this module to generate a path from."}), 404
+
+        # Step 2: Extract text from each PDF to get the core concepts
+        module_context = ""
+        for file_info in files:
+            try:
+                doc = fitz.open(file_info['file_path'])
+                text = ""
+                for page in doc:
+                    text += page.get_text()
+                module_context += f"\n--- Content from {file_info['week_title']} ---\n{text}\n"
+            except Exception as e:
+                print(f"Could not read {file_info['file_path']}: {e}")
+
+        if not module_context.strip():
+            return jsonify({"error": "Could not extract any text from the module's PDF files."}), 500
+
+        # Step 3: Construct the prompt for the OpenAI API
+        system_prompt = f"""
+        You are an expert academic advisor and curriculum designer who can translate educational concepts between programming languages.
+        Your task is to generate a structured, practical learning path for a student.
+        The output MUST be a single, valid JSON object and nothing else.
+        """
+
+        user_prompt = f"""
+        The student's desired parameters are:
+        - Difficulty Level: '{difficulty}'
+        - Target Programming Language: '{target_language}'
+
+        CRITICAL INSTRUCTION: The following source material contains the core concepts for a university module. This material might be in a different programming language. Your primary job is to identify the fundamental, language-agnostic principles from this source text (e.g., control flow, data structures, testing, version control).
+
+        Then, you must create a new learning path that teaches these exact principles, but all explanations, project ideas, and code examples MUST be in the student's target language: '{target_language}'.
+
+        For example, if the source material explains 'for loops' using Python, your output must explain 'for loops' and provide project ideas using '{target_language}'. Do not just copy the source text. You must adapt and translate the concepts.
+
+        --- SOURCE MATERIAL (for concept extraction only) ---
+        {module_context}
+        --- END OF SOURCE MATERIAL ---
+
+        The JSON object you return must have a root key 'learningPath' which is an array of 'modules'.
+        Each module object in the array must contain:
+        1. "module_number": An integer (e.g., 1).
+        2. "title": A string (e.g., "Week 1: Core Concepts in {target_language}"). This should correspond to the weekly topics from the source material, but adapted for the target language.
+        3. "description": A brief string explaining the module's goals in the context of the target language.
+        4. "topics": An array of topic objects, breaking down the module's key concepts.
+
+        Each topic object in the 'topics' array must contain:
+        1. "topic_number": An integer (e.g., 1).
+        2. "title": A string (e.g., "Variables and Data Types in {target_language}").
+        3. "concept": A string (2-3 sentences) explaining the core concept in simple terms, specifically for '{target_language}'.
+        4. "project": A string describing a small, practical exercise or a thought-provoking question that requires writing code in '{target_language}'.
+        """
+
+        # Step 4: Call the OpenAI API
+        response = client.chat.completions.create(
+            # Use a model that supports JSON mode, like gpt-4o or gpt-3.5-turbo-0125 and later
+            model="gpt-4o",
+            response_format={"type": "json_object"},
+            messages=[
+                {"role": "system", "content": system_prompt},
+                {"role": "user", "content": user_prompt}
+            ]
+        )
+
+        # The response content is a JSON string, which we can pass directly
+        response_content = response.choices[0].message.content
+        return jsonify(json.loads(response_content))
+
+    except Exception as e:
+        print(f"Error in AI path generation: {e}")
+        return jsonify({"error": "An internal server error occurred during path generation."}), 500
+
 
 # --- Run the App ---
 if __name__ == '__main__':
