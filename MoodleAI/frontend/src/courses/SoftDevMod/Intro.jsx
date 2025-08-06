@@ -177,6 +177,21 @@ const LearningPathWidget = ({ moduleId }) => {
     const [isLoading, setIsLoading] = React.useState(false);
     const [error, setError] = React.useState('');
 
+    // --- NEW: useEffect for persistence ---
+    // This effect runs once when the component mounts to load saved data
+    React.useEffect(() => {
+        try {
+            const savedPath = localStorage.getItem(`learningPath-${moduleId}`);
+            if (savedPath) {
+                setPathData(JSON.parse(savedPath));
+            }
+        } catch (err) {
+            console.error("Failed to load saved learning path:", err);
+            // If parsing fails, remove the corrupted item
+            localStorage.removeItem(`learningPath-${moduleId}`);
+        }
+    }, [moduleId]); // Dependency on moduleId ensures we get the right path for the right module
+
     // Generate button functionality
     const handleGenerate = async () => {
         if (!moduleId) {
@@ -206,6 +221,8 @@ const LearningPathWidget = ({ moduleId }) => {
 
             // A new path is successfully generated, so we set it
             setPathData(data);
+            // --- NEW: Save the new path to localStorage ---
+            localStorage.setItem(`learningPath-${moduleId}`, JSON.stringify(data));
 
         } catch (err) {
             // An error occurred, so we set the error message. The old pathData remains.
