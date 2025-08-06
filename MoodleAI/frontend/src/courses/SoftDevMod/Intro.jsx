@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '../../AuthContext.jsx';
 import '../Modules.css';
-import { FaBell, FaUserCircle, FaSignOutAlt, FaChevronRight, FaCode, FaTimes, FaFileUpload, FaFilePdf, FaFileCode, FaTrash, FaLightbulb, FaSpinner } from 'react-icons/fa';
+import { FaBell, FaUserCircle, FaSignOutAlt, FaChevronRight, FaCode, FaTimes, FaFileUpload, FaFilePdf, FaFileCode, FaTrash, FaLightbulb, FaSpinner, FaBook } from 'react-icons/fa';
 
 // --- COLOUR NOTES WIDGET ---
 const ColourNotesWidget = ({ moduleId }) => {
@@ -133,12 +133,46 @@ const ColourNotesWidget = ({ moduleId }) => {
     );
 };
 
+// --- Result Accordion Item ---
+const ResultAccordionItem = ({ module }) => {
+    const [isOpen, setIsOpen] = React.useState(false);
+
+    return (
+        <div className="widget-result-module">
+            <button className="widget-result-header" onClick={() => setIsOpen(!isOpen)}>
+                <span>{module.module_number}. {module.title}</span>
+                <FaChevronRight className={`accordion-icon ${isOpen ? 'open' : ''}`} />
+            </button>
+            {isOpen && (
+                <div className="widget-result-content">
+                    <p className="widget-module-description">{module.description}</p>
+                    {module.topics.map(topic => (
+                        <div key={topic.topic_number} className="widget-result-topic">
+                            <strong>{topic.topic_number}. {topic.title}</strong>
+                            <p><strong>Concept:</strong> {topic.concept}</p>
+                            <p className="widget-topic-project"><strong>Project Idea:</strong> {topic.project}</p>
+                            {topic.resource_link ? (
+                                <a href={topic.resource_link} target="_blank" rel="noopener noreferrer" className="btn btn-outline-warning btn-sm mt-2">
+                                    <FaBook className="me-1" /> Learn More
+                                </a>
+                            ) : (
+                                <button className="btn btn-outline-secondary btn-sm mt-2" disabled style={{ cursor: 'not-allowed' }}>
+                                    <FaBook className="me-1" /> No Link Available
+                                </button>
+                            )}
+                        </div>
+                    ))}
+                </div>
+            )}
+        </div>
+    );
+};
+
 // --- LEARNING PATH WIDGET ---
-const LearningPathWidget = ({ moduleId }) => { // Now accepts moduleId as a prop
+const LearningPathWidget = ({ moduleId }) => {
     // States
     const [difficulty, setDifficulty] = React.useState('Beginner');
     const [language, setLanguage] = React.useState('JavaScript');
-    const [showModal, setShowModal] = React.useState(false);
     const [pathData, setPathData] = React.useState(null);
     const [isLoading, setIsLoading] = React.useState(false);
     const [error, setError] = React.useState('');
@@ -147,13 +181,11 @@ const LearningPathWidget = ({ moduleId }) => { // Now accepts moduleId as a prop
     const handleGenerate = async () => {
         if (!moduleId) {
             setError("Module ID is missing. Cannot generate path.");
-            setShowModal(true);
             return;
         }
-        setShowModal(true);
         setIsLoading(true);
         setError('');
-        setPathData(null);
+        // We no longer clear the old path data here, so it persists during loading
 
         try {
             const response = await fetch('http://127.0.0.1:5001/api/generate-path', {
@@ -172,9 +204,11 @@ const LearningPathWidget = ({ moduleId }) => { // Now accepts moduleId as a prop
                 throw new Error(data.error || 'Failed to generate path.');
             }
 
+            // A new path is successfully generated, so we set it
             setPathData(data);
 
         } catch (err) {
+            // An error occurred, so we set the error message. The old pathData remains.
             setError(err.message);
         } finally {
             setIsLoading(false);
@@ -182,109 +216,59 @@ const LearningPathWidget = ({ moduleId }) => { // Now accepts moduleId as a prop
     };
 
     return (
-        <>
-            <div className="sidebar-widget">
-                <div className="widget-header-AI">
-                    <FaLightbulb /> Learning Path Gen
-                </div>
-                <div className="widget-body">
-                    <div className="learning-path-form">
-                        <div className="form-group">
-                            <label htmlFor="difficulty-select" className="form-label">Select Difficulty:</label>
-                            <select id="difficulty-select" className="form-select" value={difficulty} onChange={(e) => setDifficulty(e.target.value)}>
-                                <option>Beginner</option>
-                                <option>Intermediate</option>
-                                <option>Advanced</option>
-                            </select>
-                        </div>
-                        <div className="form-group">
-                            <label htmlFor="language-select" className="form-label">Learn Concepts In:</label>
-                            <select id="language-select" className="form-select" value={language} onChange={(e) => setLanguage(e.target.value)}>
-                                <option>JavaScript</option>
-                                <option>Python</option>
-                                <option>Java</option>
-                                <option>C#</option>
-                                <option>C++</option>
-                                <option>Rust</option>
-                                <option>Go</option>
-                            </select>
-                        </div>
-                        <button className="btn btn-warning btn-sm btn-generate" onClick={handleGenerate} disabled={isLoading}>
-                            {isLoading ? <FaSpinner className="spinner-icon-sm" /> : 'Generate'}
-                        </button>
-                    </div>
-                </div>
+        <div className="sidebar-widget">
+            <div className="widget-header-AI">
+                <FaLightbulb /> Learning Path Gen
             </div>
-            {/* Render the modal only when showModal is true */}
-            {showModal && (
-                <LearningPathModal
-                    pathData={pathData}
-                    isLoading={isLoading}
-                    error={error}
-                    onClose={() => setShowModal(false)}
-                />
-            )}
-        </>
-    );
-};
-
-// --- NEW: Result Accordion Item ---
-const ResultAccordionItem = ({ module }) => {
-    const [isOpen, setIsOpen] = React.useState(false);
-
-    return (
-        <div className="result-module">
-            <button className="result-module-header" onClick={() => setIsOpen(!isOpen)}>
-                <span>{module.module_number}. {module.title}</span>
-                <FaChevronRight className={`accordion-icon ${isOpen ? 'open' : ''}`} />
-            </button>
-            {isOpen && (
-                <div className="result-module-content">
-                    <p className="module-description">{module.description}</p>
-                    {module.topics.map(topic => (
-                        <div key={topic.topic_number} className="result-topic">
-                            <strong>{topic.topic_number}. {topic.title}</strong>
-                            <p><strong>Concept:</strong> {topic.concept}</p>
-                            <p className="topic-project"><strong>Project Idea:</strong> {topic.project}</p>
-                        </div>
-                    ))}
+            <div className="widget-body">
+                <div className="learning-path-form">
+                    <div className="form-group">
+                        <label htmlFor="difficulty-select" className="form-label">Select Difficulty:</label>
+                        <select id="difficulty-select" className="form-select" value={difficulty} onChange={(e) => setDifficulty(e.target.value)}>
+                            <option>Beginner</option>
+                            <option>Intermediate</option>
+                            <option>Advanced</option>
+                        </select>
+                    </div>
+                    <div className="form-group">
+                        <label htmlFor="language-select" className="form-label">Learn Concepts In:</label>
+                        <select id="language-select" className="form-select" value={language} onChange={(e) => setLanguage(e.target.value)}>
+                            <option>JavaScript</option>
+                            <option>Python</option>
+                            <option>Java</option>
+                            <option>C#</option>
+                            <option>C++</option>
+                            <option>Rust</option>
+                            <option>Go</option>
+                        </select>
+                    </div>
+                    <button className="btn btn-warning btn-sm btn-generate" onClick={handleGenerate} disabled={isLoading}>
+                        {isLoading ? <><FaSpinner className="spinner-icon-sm" /> Generating...</> : 'Generate'}
+                    </button>
                 </div>
-            )}
-        </div>
-    );
-};
 
-
-// --- IMPROVED: MODAL FOR DISPLAYING THE LEARNING PATH ---
-const LearningPathModal = ({ pathData, onClose, isLoading, error }) => {
-    return (
-        <div className="modal-backdrop">
-            <div className="modal-content">
-                <div className="modal-header">
-                    <h5 className="modal-title">Your Personalised Learning Path</h5>
-                    <button type="button" className="btn-close" onClick={onClose}></button>
-                </div>
-                <div className="modal-body">
+                {/* --- In-Widget Display Area --- */}
+                <div className="widget-results-container mt-3">
                     {isLoading && (
-                        <div className="text-center p-5">
-                            <FaSpinner className="spinner-icon" />
-                            <p className="mt-3">Reading your module files and generating your path...</p>
-                            <p className="text-muted small">This may take a moment with local models.</p>
+                        <div className="text-center p-3">
+                            <FaSpinner className="spinner-icon-sm" />
+                            <p className="small text-muted mt-2">Generating your path...</p>
                         </div>
                     )}
                     {error && (
-                         <div className="alert alert-danger">{error}</div>
+                         <div className="alert alert-danger p-2 small">{error}</div>
                     )}
-                    {pathData?.learningPath && (
-                        <div className="learning-path-results">
+
+                    {/* Only show the path if NOT loading. This prevents showing the old path during a new generation. */}
+                    {/* If an error occurs, isLoading becomes false, and the old path will be shown again along with the error. */}
+                    {!isLoading && pathData?.learningPath && (
+                        <div className="widget-learning-path">
+                            <h6 className="widget-results-title">Your Custom Path:</h6>
                             {pathData.learningPath.map(module => (
                                 <ResultAccordionItem key={module.module_number} module={module} />
                             ))}
                         </div>
                     )}
-                </div>
-                <div className="modal-footer">
-                    <button type="button" className="btn btn-secondary" onClick={onClose}>Close</button>
                 </div>
             </div>
         </div>

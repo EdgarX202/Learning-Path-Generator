@@ -400,7 +400,7 @@ def generate_path():
             return jsonify({
                                "error": "Could not extract any text from the module's PDF files. All files were missing or unreadable."}), 500
 
-        # --- NEW Step 2.5: Summarize the extracted text ---
+        # --- Step 2.5: Summarize the extracted text ---
         module_summary = summarize_text(full_module_text)
 
         # Step 3: Construct the prompt for the Ollama API using the SUMMARY
@@ -435,6 +435,7 @@ def generate_path():
         2. "title": A string (e.g., "Variables and Data Types in {target_language}").
         3. "concept": A string (2-3 sentences) explaining the core concept in simple terms, specifically for '{target_language}'.
         4. "project": A string describing a small, practical exercise or a thought-provoking question that requires writing code in '{target_language}'.
+        5. "resource_link": A valid, high-quality URL to a relevant resource for the topic (e.g., MDN for JavaScript, python.org for Python).
         """
 
         # Step 4: Call the Ollama API for the final generation
