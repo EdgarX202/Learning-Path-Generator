@@ -18,6 +18,7 @@ import CodingStandards from './courses/SoftDevMod/CodingStandards.jsx';
 import TestQA from './courses/SoftDevMod/TestQA.jsx';
 import ProjectMgmnt from './courses/SoftDevMod/ProjectMgmnt.jsx';
 // AI
+import IntroToAI from './courses/AIMod/Intro.jsx';
 // Web Dev
 
 

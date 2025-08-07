@@ -6,7 +6,7 @@ import mysql.connector
 import json
 from werkzeug.utils import secure_filename
 
-# --- New Imports for AI and PDF Parsing (Now using OpenAI) ---
+# --- Imports for AI and PDF Parsing (using OpenAI) ---
 from openai import OpenAI, Timeout
 from dotenv import load_dotenv
 import fitz
@@ -18,9 +18,9 @@ load_dotenv()
 app = Flask(__name__)
 CORS(app)
 
-# --- AI Configuration (Now using Ollama) ---
+# --- AI Configuration (using Ollama) ---
 try:
-    # Point the client to your local Ollama server
+    # Point the client to the local Ollama server
     # The api_key can be any string, it's required by the library but not used by Ollama
     client = OpenAI(
         base_url='http://localhost:11434/v1',
@@ -49,10 +49,7 @@ db_config = {
 }
 
 
-# --- Existing API Endpoints (Login, Courses, etc.) ---
-# ... (Your existing endpoints for /api/login, /api/courses, etc. remain here) ...
-# I am omitting them for brevity, but you should keep them in your file.
-
+# --- API Endpoints ---
 @app.route('/api/login', methods=['POST'])
 def login():
     """ Handles user login requests. """
@@ -324,12 +321,10 @@ def delete_file(file_id):
             conn.close()
 
 
-# --- NEW: Helper function to summarize text ---
+# --- Helper function to summarise PDF text ---
 def summarize_text(full_text):
-    """
-    Uses the LLM to perform a quick summarization task.
-    """
-    print("Starting summarization of PDF content...")
+    """ Using LLM to perform a quick summarisation task """
+    print("Starting summarisation of PDF content...")
     try:
         response = client.chat.completions.create(
             model="llama3",
@@ -341,21 +336,18 @@ def summarize_text(full_text):
             ]
         )
         summary = response.choices[0].message.content
-        print("Summarization complete.")
+        print("Summarisation complete.")
         return summary
     except Exception as e:
-        print(f"Error during summarization: {e}")
-        # If summarization fails, we can fall back to using the full text,
-        # but this might still time out. A better approach is to signal an error.
+        print(f"Error during summarisation: {e}")
+
         raise e  # Re-raise the exception to be caught by the main function
 
 
-# --- UPDATED: AI Learning Path Generator Endpoint ---
+# --- AI Learning Path Generator Endpoint ---
 @app.route('/api/generate-path', methods=['POST'])
 def generate_path():
-    """
-    Generates a learning path by first summarizing module files, then generating the path.
-    """
+    """ Generates a learning path by first summarising module files, then generating the path. """
     if not client:
         return jsonify({"error": "Ollama client not configured. Is the Ollama application running?"}), 500
 
@@ -368,7 +360,7 @@ def generate_path():
         return jsonify({"error": "moduleId, difficulty, and language are required"}), 400
 
     try:
-        # Step 1: Retrieve file paths from the database
+        # Retrieve file paths from the database
         conn = mysql.connector.connect(**db_config)
         cursor = conn.cursor(dictionary=True)
         query = "SELECT file_path, week_title FROM module_files WHERE module_id = %s AND file_name LIKE '%%.pdf'"
@@ -380,7 +372,7 @@ def generate_path():
         if not files:
             return jsonify({"error": "No PDF files found for this module to generate a path from."}), 404
 
-        # Step 2: Extract text from each PDF to get the core concepts
+        # Extract text from each PDF to get the core concepts
         full_module_text = ""
         for file_info in files:
             file_path = file_info['file_path']
@@ -400,10 +392,10 @@ def generate_path():
             return jsonify({
                                "error": "Could not extract any text from the module's PDF files. All files were missing or unreadable."}), 500
 
-        # --- Step 2.5: Summarize the extracted text ---
+        # --- Summarise the extracted text ---
         module_summary = summarize_text(full_module_text)
 
-        # Step 3: Construct the prompt for the Ollama API using the SUMMARY
+        # Construct the prompt for the Ollama API using the SUMMARY
         system_prompt = f"""
         You are an expert academic advisor and curriculum designer who can translate educational concepts between programming languages.
         Your task is to generate a structured, practical learning path for a student.
@@ -438,7 +430,7 @@ def generate_path():
         5. "resource_link": A valid, high-quality URL to a relevant resource for the topic (e.g., MDN for JavaScript, python.org for Python).
         """
 
-        # Step 4: Call the Ollama API for the final generation
+        # Call the Ollama API for the final generation
         print("Starting final path generation from summary...")
         response = client.chat.completions.create(
             model="llama3",

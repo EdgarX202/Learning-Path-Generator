@@ -170,6 +170,8 @@ const ResultAccordionItem = ({ module }) => {
 
 // --- LEARNING PATH WIDGET ---
 const LearningPathWidget = ({ moduleId }) => {
+    // Hook
+    const { user } = useAuth();
     // States
     const [difficulty, setDifficulty] = React.useState('Beginner');
     const [language, setLanguage] = React.useState('JavaScript');
@@ -177,20 +179,27 @@ const LearningPathWidget = ({ moduleId }) => {
     const [isLoading, setIsLoading] = React.useState(false);
     const [error, setError] = React.useState('');
 
-    // --- NEW: useEffect for persistence ---
-    // This effect runs once when the component mounts to load saved data
+    // Runs once when the component mounts to load saved data
     React.useEffect(() => {
-        try {
-            const savedPath = localStorage.getItem(`learningPath-${moduleId}`);
-            if (savedPath) {
-                setPathData(JSON.parse(savedPath));
+        // Only try to load data if we have a logged-in user
+        if (user?.userId) {
+            try {
+                // Create a unique key for the user and module
+                const userSpecificKey = `learningPath-${moduleId}-${user.userId}`;
+                const savedPath = localStorage.getItem(userSpecificKey);
+                if (savedPath) {
+                    setPathData(JSON.parse(savedPath));
+                } else {
+                    // If no path is saved for this user, ensure the state is clear
+                    setPathData(null);
+                }
+            } catch (err) {
+                console.error("Failed to load saved learning path:", err);
+                const userSpecificKey = `learningPath-${moduleId}-${user.userId}`;
+                localStorage.removeItem(userSpecificKey);
             }
-        } catch (err) {
-            console.error("Failed to load saved learning path:", err);
-            // If parsing fails, remove the corrupted item
-            localStorage.removeItem(`learningPath-${moduleId}`);
         }
-    }, [moduleId]); // Dependency on moduleId ensures we get the right path for the right module
+    }, [moduleId, user]);
 
     // Generate button functionality
     const handleGenerate = async () => {
@@ -200,7 +209,6 @@ const LearningPathWidget = ({ moduleId }) => {
         }
         setIsLoading(true);
         setError('');
-        // We no longer clear the old path data here, so it persists during loading
 
         try {
             const response = await fetch('http://127.0.0.1:5001/api/generate-path', {
@@ -221,11 +229,10 @@ const LearningPathWidget = ({ moduleId }) => {
 
             // A new path is successfully generated, so we set it
             setPathData(data);
-            // --- NEW: Save the new path to localStorage ---
+            // Save the path to localStorage
             localStorage.setItem(`learningPath-${moduleId}`, JSON.stringify(data));
 
         } catch (err) {
-            // An error occurred, so we set the error message. The old pathData remains.
             setError(err.message);
         } finally {
             setIsLoading(false);
@@ -235,7 +242,7 @@ const LearningPathWidget = ({ moduleId }) => {
     return (
         <div className="sidebar-widget">
             <div className="widget-header-AI">
-                <FaLightbulb /> Learning Path Gen
+                Learning Path Generator
             </div>
             <div className="widget-body">
                 <div className="learning-path-form">
@@ -248,15 +255,13 @@ const LearningPathWidget = ({ moduleId }) => {
                         </select>
                     </div>
                     <div className="form-group">
-                        <label htmlFor="language-select" className="form-label">Learn Concepts In:</label>
+                        <label htmlFor="language-select" className="form-label">Select Programming Language:</label>
                         <select id="language-select" className="form-select" value={language} onChange={(e) => setLanguage(e.target.value)}>
                             <option>JavaScript</option>
                             <option>Python</option>
                             <option>Java</option>
                             <option>C#</option>
                             <option>C++</option>
-                            <option>Rust</option>
-                            <option>Go</option>
                         </select>
                     </div>
                     <button className="btn btn-warning btn-sm btn-generate" onClick={handleGenerate} disabled={isLoading}>
