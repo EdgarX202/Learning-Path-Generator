@@ -25,12 +25,22 @@ import IntroToAI from './courses/AIMod/Intro.jsx';
 // --- Helper component for protected routes ---
 // Acts as a gatekeeper for pages that require a user to be logged in
 const ProtectedRoute = ({ children }) => {
-    // Get the current user
-    const { user } = useAuth();
+    // Get the current user AND the loading state from the context
+    const { user, loading } = useAuth();
+
+    // 1. If we are still loading, show a simple loading message or a spinner.
+    // This prevents the redirect from happening before we've checked for a user.
+    if (loading) {
+        return <div>Loading session...</div>; // Or a more complex spinner component
+    }
+
+    // 2. Once loading is false, we can safely check for the user.
     if (!user) {
-        // If there is no user (e.g. not logged in) take them to login page
+        // If there is no user, redirect to the login page.
         return <Navigate to="/login" />;
     }
+
+    // 3. If loading is false and we have a user, render the requested page.
     return children;
 };
 

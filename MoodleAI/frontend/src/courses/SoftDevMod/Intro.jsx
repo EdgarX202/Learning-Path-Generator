@@ -170,8 +170,8 @@ const ResultAccordionItem = ({ module }) => {
 
 // --- LEARNING PATH WIDGET ---
 const LearningPathWidget = ({ moduleId }) => {
-    // Hook
-    const { user } = useAuth();
+    // Hooks
+    const { user } = useAuth(); // Get the logged-in user context
     // States
     const [difficulty, setDifficulty] = React.useState('Beginner');
     const [language, setLanguage] = React.useState('JavaScript');
@@ -179,39 +179,39 @@ const LearningPathWidget = ({ moduleId }) => {
     const [isLoading, setIsLoading] = React.useState(false);
     const [error, setError] = React.useState('');
 
-    // Runs once when the component mounts to load saved data
+    // --- UPDATED: useEffect to load path from DATABASE ---
     React.useEffect(() => {
-        // Only try to load data if we have a logged-in user
-        if (user?.userId) {
-            try {
-                // Create a unique key for the user and module
-                const userSpecificKey = `learningPath-${moduleId}-${user.userId}`;
-                const savedPath = localStorage.getItem(userSpecificKey);
-                if (savedPath) {
-                    setPathData(JSON.parse(savedPath));
-                } else {
-                    // If no path is saved for this user, ensure the state is clear
-                    setPathData(null);
+        const loadPathFromDb = async () => {
+            if (user?.userId && moduleId) {
+                try {
+                    const response = await fetch(`http://127.0.0.1:5001/api/load-path?userId=${user.userId}&moduleId=${moduleId}`);
+                    const data = await response.json();
+                    if (response.ok && data.learningPath) {
+                        setPathData(data);
+                    } else {
+                        setPathData(null); // No path saved for this module
+                    }
+                } catch (err) {
+                    console.error("Failed to load learning path from DB:", err);
+                    setError("Could not load saved path.");
                 }
-            } catch (err) {
-                console.error("Failed to load saved learning path:", err);
-                const userSpecificKey = `learningPath-${moduleId}-${user.userId}`;
-                localStorage.removeItem(userSpecificKey);
             }
-        }
-    }, [moduleId, user]);
+        };
+        loadPathFromDb();
+    }, [moduleId, user]); // Dependency on user and module
 
     // Generate button functionality
     const handleGenerate = async () => {
-        if (!moduleId) {
-            setError("Module ID is missing. Cannot generate path.");
+        if (!moduleId || !user?.userId) {
+            setError("Cannot generate path. User or Module ID is missing.");
             return;
         }
         setIsLoading(true);
         setError('');
 
         try {
-            const response = await fetch('http://127.0.0.1:5001/api/generate-path', {
+            // 1. Generate the new path
+            const genResponse = await fetch('http://127.0.0.1:5001/api/generate-path', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
@@ -220,17 +220,21 @@ const LearningPathWidget = ({ moduleId }) => {
                     language: language,
                 }),
             });
+            const genData = await genResponse.json();
+            if (!genResponse.ok) throw new Error(genData.error || 'Failed to generate path.');
 
-            const data = await response.json();
+            setPathData(genData);
 
-            if (!response.ok) {
-                throw new Error(data.error || 'Failed to generate path.');
-            }
-
-            // A new path is successfully generated, so we set it
-            setPathData(data);
-            // Save the path to localStorage
-            localStorage.setItem(`learningPath-${moduleId}`, JSON.stringify(data));
+            // 2. Save the newly generated path to the database
+            await fetch('http://127.0.0.1:5001/api/save-path', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    userId: user.userId,
+                    moduleId: moduleId,
+                    pathData: genData
+                })
+            });
 
         } catch (err) {
             setError(err.message);
@@ -242,7 +246,7 @@ const LearningPathWidget = ({ moduleId }) => {
     return (
         <div className="sidebar-widget">
             <div className="widget-header-AI">
-                Learning Path Generator
+                <FaLightbulb /> Learning Path Gen
             </div>
             <div className="widget-body">
                 <div className="learning-path-form">
@@ -255,13 +259,15 @@ const LearningPathWidget = ({ moduleId }) => {
                         </select>
                     </div>
                     <div className="form-group">
-                        <label htmlFor="language-select" className="form-label">Select Programming Language:</label>
+                        <label htmlFor="language-select" className="form-label">Learn Concepts In:</label>
                         <select id="language-select" className="form-select" value={language} onChange={(e) => setLanguage(e.target.value)}>
                             <option>JavaScript</option>
                             <option>Python</option>
                             <option>Java</option>
                             <option>C#</option>
                             <option>C++</option>
+                            <option>Rust</option>
+                            <option>Go</option>
                         </select>
                     </div>
                     <button className="btn btn-warning btn-sm btn-generate" onClick={handleGenerate} disabled={isLoading}>
@@ -269,7 +275,6 @@ const LearningPathWidget = ({ moduleId }) => {
                     </button>
                 </div>
 
-                {/* --- In-Widget Display Area --- */}
                 <div className="widget-results-container mt-3">
                     {isLoading && (
                         <div className="text-center p-3">
@@ -281,8 +286,6 @@ const LearningPathWidget = ({ moduleId }) => {
                          <div className="alert alert-danger p-2 small">{error}</div>
                     )}
 
-                    {/* Only show the path if NOT loading. This prevents showing the old path during a new generation. */}
-                    {/* If an error occurs, isLoading becomes false, and the old path will be shown again along with the error. */}
                     {!isLoading && pathData?.learningPath && (
                         <div className="widget-learning-path">
                             <h6 className="widget-results-title">Your Custom Path:</h6>

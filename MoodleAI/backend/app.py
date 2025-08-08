@@ -453,6 +453,79 @@ def generate_path():
         print(f"An unexpected error occurred in AI path generation: {e}")
         return jsonify({"error": "An internal server error occurred during path generation. Is Ollama running?"}), 500
 
+
+@app.route('/api/save-path', methods=['POST'])
+def save_path():
+    """ Saves the generated learning path to the database """
+    data = request.get_json()
+    user_id = data.get('userId')
+    module_id = data.get('moduleId')
+    path_data = data.get('pathData')
+
+    if not all([user_id, module_id, path_data]):
+        return jsonify({"error": "userId, moduleId, and pathData are required"}), 400
+
+    try:
+        conn = mysql.connector.connect(**db_config)
+        cursor = conn.cursor(dictionary=True)
+
+        # 1. Get the current learning_paths JSON from the database
+        cursor.execute("SELECT learning_paths FROM users WHERE user_id = %s", (user_id,))
+        user = cursor.fetchone()
+
+        learning_paths = {}
+        if user and user['learning_paths']:
+            learning_paths = json.loads(user['learning_paths'])
+
+        # 2. Update the specific path for the current module
+        learning_paths[module_id] = path_data
+
+        # 3. Save the updated JSON back to the database
+        updated_paths_json = json.dumps(learning_paths)
+        cursor.execute("UPDATE users SET learning_paths = %s WHERE user_id = %s", (updated_paths_json, user_id))
+
+        conn.commit()
+        cursor.close()
+        conn.close()
+
+        return jsonify({"message": "Path saved successfully"}), 200
+
+    except Exception as e:
+        print(f"Error saving path: {e}")
+        return jsonify({"error": "Failed to save learning path."}), 500
+
+
+@app.route('/api/load-path', methods=['GET'])
+def load_path():
+    """ Load a learning path from the database """
+    user_id = request.args.get('userId')
+    module_id = request.args.get('moduleId')
+
+    if not all([user_id, module_id]):
+        return jsonify({"error": "userId and moduleId are required"}), 400
+
+    try:
+        conn = mysql.connector.connect(**db_config)
+        cursor = conn.cursor(dictionary=True)
+
+        cursor.execute("SELECT learning_paths FROM users WHERE user_id = %s", (user_id,))
+        user = cursor.fetchone()
+        cursor.close()
+        conn.close()
+
+        if user and user['learning_paths']:
+            learning_paths = json.loads(user['learning_paths'])
+            # Return the specific path for the requested module, or an empty object if not found
+            module_path = learning_paths.get(module_id, {})
+            return jsonify(module_path)
+        else:
+            # No paths saved for this user yet
+            return jsonify({}), 200
+
+    except Exception as e:
+        print(f"Error loading path: {e}")
+        return jsonify({"error": "Failed to load learning path."}), 500
+
 # --- Run the App ---
 if __name__ == '__main__':
     app.run(debug=True, port=5001)
