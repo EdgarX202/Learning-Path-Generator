@@ -246,7 +246,7 @@ const LearningPathWidget = ({ moduleId }) => {
     return (
         <div className="sidebar-widget">
             <div className="widget-header-AI">
-                <FaLightbulb /> Learning Path Gen
+                Learning Path Generator
             </div>
             <div className="widget-body">
                 <div className="learning-path-form">
@@ -259,19 +259,17 @@ const LearningPathWidget = ({ moduleId }) => {
                         </select>
                     </div>
                     <div className="form-group">
-                        <label htmlFor="language-select" className="form-label">Learn Concepts In:</label>
+                        <label htmlFor="language-select" className="form-label">Select Programming Language:</label>
                         <select id="language-select" className="form-select" value={language} onChange={(e) => setLanguage(e.target.value)}>
                             <option>JavaScript</option>
                             <option>Python</option>
                             <option>Java</option>
                             <option>C#</option>
                             <option>C++</option>
-                            <option>Rust</option>
-                            <option>Go</option>
                         </select>
                     </div>
                     <button className="btn btn-warning btn-sm btn-generate" onClick={handleGenerate} disabled={isLoading}>
-                        {isLoading ? <><FaSpinner className="spinner-icon-sm" /> Generating...</> : 'Generate'}
+                        {isLoading ? <> Generating...</> : 'Generate'}
                     </button>
                 </div>
 
@@ -279,7 +277,7 @@ const LearningPathWidget = ({ moduleId }) => {
                     {isLoading && (
                         <div className="text-center p-3">
                             <FaSpinner className="spinner-icon-sm" />
-                            <p className="small text-muted mt-2">Generating your path...</p>
+                            <p className="small text-muted mt-2">Please Wait...</p>
                         </div>
                     )}
                     {error && (
@@ -288,7 +286,7 @@ const LearningPathWidget = ({ moduleId }) => {
 
                     {!isLoading && pathData?.learningPath && (
                         <div className="widget-learning-path">
-                            <h6 className="widget-results-title">Your Custom Path:</h6>
+                            <h6 className="widget-results-title">Your Personal Path:</h6>
                             {pathData.learningPath.map(module => (
                                 <ResultAccordionItem key={module.module_number} module={module} />
                             ))}
