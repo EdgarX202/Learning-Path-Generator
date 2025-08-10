@@ -19,6 +19,7 @@ Built using Python + Flask + React
 <br>
 <br>
 <strong>The AI agent:</strong>
+Local Ollama (Llama3) model. Offline for development purposes. Use ChatGPT/Gemini/Deepseek API keys for online access if in production.
 <br>
 <br>
 © 2025 Edgar Park | Edinburgh Napier University. All Rights Reserved.
