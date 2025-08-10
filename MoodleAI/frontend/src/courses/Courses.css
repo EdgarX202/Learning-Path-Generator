@@ -1,11 +1,8 @@
-
 /* Stylesheet for courses page */
-
 html, body {
     margin: 0;
     padding: 0;
 }
-
 .App {
     height: auto !important;
 }
@@ -105,10 +102,10 @@ html, body {
 
 /* --- Course Accordion --- */
 .course-accordion {
-    margin-bottom: 0.5rem; /* Adds space between each course item */
+    margin-bottom: 0.5rem;
 }
 .course-accordion:last-child {
-    margin-bottom: 0; /* Removes margin from the last item for a cleaner look */
+    margin-bottom: 0;
 }
 .accordion-header {
     background-color: #f1f1f1;
@@ -179,5 +176,3 @@ html, body {
 .page-footer a:hover {
     text-decoration: underline;
 }
-
-

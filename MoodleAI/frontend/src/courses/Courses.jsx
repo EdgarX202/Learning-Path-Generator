@@ -41,7 +41,7 @@ const CourseAccordionItem = ({ course }) => {
     const getModulePath = (moduleName) => {
         const lowerModuleName = moduleName.toLowerCase();
 
-        // It maps specific module names to their client-side routes
+        // Maps specific module names to their client-side routes
         if (lowerModuleName.includes('software engineering') && modules.length === 0) return '/softeng';
         if (lowerModuleName.includes('website development')) return '/webdev';
         if (lowerModuleName.includes('artificial intelligence')) return '/ai';

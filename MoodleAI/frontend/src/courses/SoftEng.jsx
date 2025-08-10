@@ -1,9 +1,9 @@
 import React, { useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
-import './Courses.css'; // Uses the same CSS file as the main dashboard
+import './Courses.css';
 import { FaBell, FaUserCircle, FaSignOutAlt, FaChevronRight } from 'react-icons/fa';
 
-// Reusable Accordion Item Component
+// Accordion Item Component
 const AccordionItem = ({ title, children, startOpen = false }) => {
     const [isOpen, setIsOpen] = useState(startOpen);
 
@@ -26,7 +26,7 @@ const AccordionItem = ({ title, children, startOpen = false }) => {
     );
 };
 
-// Calendar Widget (copied from Courses.jsx for layout consistency)
+// Calendar Widget
 const CalendarWidget = () => (
     <div className="sidebar-widget">
         <div className="widget-header">Calendar</div>
@@ -41,7 +41,6 @@ const CalendarWidget = () => (
         </div>
     </div>
 );
-
 
 const SoftEng = () => {
     const location = useLocation();

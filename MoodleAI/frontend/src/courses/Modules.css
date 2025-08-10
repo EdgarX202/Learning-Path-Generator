@@ -1,5 +1,4 @@
-
-/* --- Styles for Weekly Module Accordion --- */
+/* --- Weekly Module Accordion --- */
 .week-accordion-item {
     margin-bottom: 0.5rem;
 }
@@ -23,7 +22,7 @@
     border-radius: 0 0 0.25rem 0.25rem;
 }
 
-/* --- Styles for Sub-Accordion (Theory/Practical) --- */
+/* --- Sub-Accordion (Theory/Practical) --- */
 .sub-accordion-item {
     border-bottom: 1px solid #f1f1f1;
 }
@@ -271,28 +270,24 @@
     padding: 0 0.5rem;
 }
 
-/* --- NEW: Styles for In-Widget Results --- */
-
+/* --- In-Widget Results --- */
 .widget-results-container {
     border-top: 1px solid #dee2e6;
     padding-top: 1rem;
     margin-top: 1rem;
 }
-
 .widget-results-title {
     font-weight: 600;
     margin-bottom: 0.5rem;
     font-size: 0.9rem;
     color: #495057;
 }
-
 .widget-result-module {
     border: 1px solid #e9ecef;
     border-radius: 0.25rem;
     margin-bottom: 0.5rem;
     font-size: 0.8rem;
 }
-
 .widget-result-header {
     width: 100%;
     text-align: left;
@@ -306,23 +301,19 @@
     font-weight: 600;
     color: #495057;
 }
-
 .widget-result-header:hover {
     background-color: #e9ecef;
 }
-
 .widget-result-content {
     padding: 0.75rem;
     border-top: 1px solid #e9ecef;
 }
-
 .widget-module-description {
     font-style: italic;
     color: #6c757d;
     margin-bottom: 0.75rem;
     font-size: 0.75rem;
 }
-
 .widget-result-topic {
     margin-bottom: 0.75rem;
     padding-bottom: 0.75rem;
@@ -333,11 +324,9 @@
     padding-bottom: 0;
     border-bottom: none;
 }
-
 .widget-result-topic p {
     margin-bottom: 0.25rem;
 }
-
 .widget-topic-project {
     background-color: #fff3cd;
     border-left: 3px solid #ffc107;
@@ -345,12 +334,10 @@
     font-size: 0.75rem;
     border-radius: 0.25rem;
 }
-
 .spinner-icon-sm {
     animation: spin 1.5s linear infinite;
     margin-right: 0.5rem;
 }
-
 @keyframes spin {
     0% { transform: rotate(0deg); }
     100% { transform: rotate(360deg); }
