@@ -1,4 +1,3 @@
-import sys
 import os
 from flask import Flask, request, jsonify, send_from_directory
 from flask_cors import CORS
@@ -11,17 +10,16 @@ from openai import OpenAI, Timeout
 from dotenv import load_dotenv
 import fitz
 
-# --- Load Environment Variables ---
+# --- Environment Variable ---
 load_dotenv()
 
-# --- Basic Flask App Setup ---
+# --- Flask App Setup ---
 app = Flask(__name__)
 CORS(app)
 
 # --- AI Configuration (using Ollama) ---
 try:
     # Point the client to the local Ollama server
-    # The api_key can be any string, it's required by the library but not used by Ollama
     client = OpenAI(
         base_url='http://localhost:11434/v1',
         api_key='ollama',
@@ -38,7 +36,7 @@ except Exception as e:
 # --- File Upload Configuration ---
 UPLOAD_FOLDER = 'uploads'
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
-os.makedirs(UPLOAD_FOLDER, exist_ok=True)  # Ensure the upload folder exists
+os.makedirs(UPLOAD_FOLDER, exist_ok=True)
 
 # --- MySQL Database Configuration ---
 db_config = {
@@ -47,7 +45,6 @@ db_config = {
     'host': '127.0.0.1',
     'database': 'university_db'
 }
-
 
 # --- API Endpoints ---
 @app.route('/api/login', methods=['POST'])
@@ -197,7 +194,7 @@ def add_note():
 
 @app.route('/api/notes/<int:note_id>', methods=['DELETE'])
 def delete_note(note_id):
-    """ Deletes notes from the database """
+    """ Delete notes from the database """
     try:
         conn = mysql.connector.connect(**db_config)
         cursor = conn.cursor()
@@ -220,7 +217,7 @@ def delete_note(note_id):
 
 @app.route('/api/upload', methods=['POST'])
 def upload_file():
-    """ Uploads files to the database """
+    """ Upload files to the database """
     if 'file' not in request.files:
         return jsonify({"error": "No file part"}), 400
 
@@ -321,9 +318,9 @@ def delete_file(file_id):
             conn.close()
 
 
-# --- Helper function to summarise PDF text ---
+# --- Helper function to summarise the PDF text ---
 def summarize_text(full_text):
-    """ Using LLM to perform a quick summarisation task """
+    """ Using LLM to perform summarisation """
     print("Starting summarisation of PDF content...")
     try:
         response = client.chat.completions.create(
@@ -347,7 +344,7 @@ def summarize_text(full_text):
 # --- AI Learning Path Generator Endpoint ---
 @app.route('/api/generate-path', methods=['POST'])
 def generate_path():
-    """ Generates a learning path by first summarising module files, then generating the path. """
+    """ Generate a learning path by first summarising module files, then generating the path. """
     if not client:
         return jsonify({"error": "Ollama client not configured. Is the Ollama application running?"}), 500
 
@@ -395,7 +392,7 @@ def generate_path():
         # --- Summarise the extracted text ---
         module_summary = summarize_text(full_module_text)
 
-        # Construct the prompt for the Ollama API using the SUMMARY
+        # Prompt for Ollama API
         system_prompt = f"""
         You are an expert academic advisor and curriculum designer who can translate educational concepts between programming languages.
         Your task is to generate a structured, practical learning path for a student.
@@ -456,7 +453,7 @@ def generate_path():
 
 @app.route('/api/save-path', methods=['POST'])
 def save_path():
-    """ Saves the generated learning path to the database """
+    """ Save the generated learning path to the database """
     data = request.get_json()
     user_id = data.get('userId')
     module_id = data.get('moduleId')
@@ -469,7 +466,7 @@ def save_path():
         conn = mysql.connector.connect(**db_config)
         cursor = conn.cursor(dictionary=True)
 
-        # 1. Get the current learning_paths JSON from the database
+        # Get the current learning_paths JSON from the database
         cursor.execute("SELECT learning_paths FROM users WHERE user_id = %s", (user_id,))
         user = cursor.fetchone()
 
@@ -477,10 +474,10 @@ def save_path():
         if user and user['learning_paths']:
             learning_paths = json.loads(user['learning_paths'])
 
-        # 2. Update the specific path for the current module
+        # Update the specific path for the current module
         learning_paths[module_id] = path_data
 
-        # 3. Save the updated JSON back to the database
+        # Save the updated JSON back to the database
         updated_paths_json = json.dumps(learning_paths)
         cursor.execute("UPDATE users SET learning_paths = %s WHERE user_id = %s", (updated_paths_json, user_id))
 
