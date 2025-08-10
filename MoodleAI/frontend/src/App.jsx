@@ -25,10 +25,10 @@ import KnowledgeRep from './courses/AIMod/KnowledgeRep.jsx';
 import NLP from './courses/AIMod/NLP.jsx';
 import ProblemSolving from './courses/AIMod/ProblemSolving.jsx';
 // Web Dev
-import CSSLayout from './courses/WebDevMod/CSSLayout.jsx';
+import CSSLayout from './courses/WebDevMod/CSSLayouts.jsx';
 import DOM from './courses/WebDevMod/DOM.jsx';
 import FinalProject from './courses/WebDevMod/FinalProject.jsx';
-import IntroToWeb from './courses/WebDevMod/IntroToWeb.jsx';
+import IntroToWeb from './courses/WebDevMod/Intro.jsx';
 import IntroToBackend from './courses/WebDevMod/IntroToBackend.jsx';
 import JSFund from './courses/WebDevMod/JSFund.jsx';
 

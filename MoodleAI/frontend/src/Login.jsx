@@ -4,14 +4,14 @@ import { useAuth } from './AuthContext.jsx';
 import './Login.css';
 
 const Login = () => {
-    // --- State Management ---
+    // --- States ---
     const [username, setUsername] = useState('');
     const [password, setPassword] = useState('');
     const [error, setError] = useState('');
 
     // --- Hooks ---
-    const navigate = useNavigate(); // Get the navigate function from React Router to redirect the user
-    const { login } = useAuth(); // Get the login function from AuthContext to manage users session
+    const navigate = useNavigate();
+    const { login } = useAuth();
 
     // --- Event Handlers ---
     const handleSubmit = async (event) => {
@@ -44,7 +44,7 @@ const Login = () => {
 
     /*
         --- JSX rendering ---
-        This is the HTML structure that will be rendered
+            HTML Structure
     */
     return (
         <div className="login-container">
@@ -82,5 +82,3 @@ const Login = () => {
 };
 
 export default Login;
-
-
