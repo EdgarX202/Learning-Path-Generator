@@ -2,7 +2,7 @@ import React from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { AuthProvider, useAuth } from './AuthContext.jsx';
 
-// --- Website page imports ---
+// --- Main page imports ---
 import Login from './Login.jsx';
 import Courses from './courses/Courses.jsx';
 import SoftEng from './courses/SoftEng.jsx';
@@ -19,8 +19,18 @@ import TestQA from './courses/SoftDevMod/TestQA.jsx';
 import ProjectMgmnt from './courses/SoftDevMod/ProjectMgmnt.jsx';
 // AI
 import IntroToAI from './courses/AIMod/Intro.jsx';
+import Ethics from './courses/AIMod/Ethics.jsx';
+import IntroToML from './courses/AIMod/IntroToML.jsx';
+import KnowledgeRep from './courses/AIMod/KnowledgeRep.jsx';
+import NLP from './courses/AIMod/NLP.jsx';
+import ProblemSolving from './courses/AIMod/ProblemSolving.jsx';
 // Web Dev
-
+import CSSLayout from './courses/WebDevMod/CSSLayout.jsx';
+import DOM from './courses/WebDevMod/DOM.jsx';
+import FinalProject from './courses/WebDevMod/FinalProject.jsx';
+import IntroToWeb from './courses/WebDevMod/IntroToWeb.jsx';
+import IntroToBackend from './courses/WebDevMod/IntroToBackend.jsx';
+import JSFund from './courses/WebDevMod/JSFund.jsx';
 
 // --- Helper component for protected routes ---
 // Acts as a gatekeeper for pages that require a user to be logged in
@@ -28,19 +38,19 @@ const ProtectedRoute = ({ children }) => {
     // Get the current user AND the loading state from the context
     const { user, loading } = useAuth();
 
-    // 1. If we are still loading, show a simple loading message or a spinner.
-    // This prevents the redirect from happening before we've checked for a user.
+    // If its still loading, show a simple loading message.
+    // This prevents the redirect from happening. Check the user first.
     if (loading) {
-        return <div>Loading session...</div>; // Or a more complex spinner component
+        return <div>Loading session...</div>;
     }
 
-    // 2. Once loading is false, we can safely check for the user.
+    // Check the user
     if (!user) {
         // If there is no user, redirect to the login page.
         return <Navigate to="/login" />;
     }
 
-    // 3. If loading is false and we have a user, render the requested page.
+    // If there is a user, navigate to requested page.
     return children;
 };
 
@@ -71,19 +81,19 @@ function App() {
             <Route path="/softeng/testqa" element={<ProtectedRoute><TestQA /></ProtectedRoute>} />
             <Route path="/softeng/projectmgmnt" element={<ProtectedRoute><ProjectMgmnt /></ProtectedRoute>} />
             {/* --- Artificial Intelligence Modules --- */}
-            <Route path="/ai/intro" element={<ProtectedRoute><Intro /></ProtectedRoute>} />
-            <Route path="/ai/problemsolving" element={<ProtectedRoute><ReqEng /></ProtectedRoute>} />
-            <Route path="/ai/ethics" element={<ProtectedRoute><SDArchitecture /></ProtectedRoute>} />
-            <Route path="/ai/introtoml" element={<ProtectedRoute><CodingStandards /></ProtectedRoute>} />
-            <Route path="/ai/knowledgerep" element={<ProtectedRoute><TestQA /></ProtectedRoute>} />
-            <Route path="/ai/nlp" element={<ProtectedRoute><ProjectMgmnt /></ProtectedRoute>} />
+            <Route path="/ai/intro" element={<ProtectedRoute><IntroToAI /></ProtectedRoute>} />
+            <Route path="/ai/problemsolving" element={<ProtectedRoute><ProblemSolving /></ProtectedRoute>} />
+            <Route path="/ai/ethics" element={<ProtectedRoute><Ethics /></ProtectedRoute>} />
+            <Route path="/ai/introtoml" element={<ProtectedRoute><IntroToML /></ProtectedRoute>} />
+            <Route path="/ai/knowledgerep" element={<ProtectedRoute><KnowledgeRep /></ProtectedRoute>} />
+            <Route path="/ai/nlp" element={<ProtectedRoute><NLP /></ProtectedRoute>} />
             {/* --- Website Development Modules --- */}
-            <Route path="/webdev/intro" element={<ProtectedRoute><Intro /></ProtectedRoute>} />
-            <Route path="/webdev/csslayouts" element={<ProtectedRoute><ReqEng /></ProtectedRoute>} />
-            <Route path="/webdev/dom" element={<ProtectedRoute><SDArchitecture /></ProtectedRoute>} />
-            <Route path="/webdev/finalproject" element={<ProtectedRoute><CodingStandards /></ProtectedRoute>} />
-            <Route path="/webdev/introtobackend" element={<ProtectedRoute><TestQA /></ProtectedRoute>} />
-            <Route path="/webdev/jsfund" element={<ProtectedRoute><ProjectMgmnt /></ProtectedRoute>} />
+            <Route path="/webdev/intro" element={<ProtectedRoute><IntroToWeb /></ProtectedRoute>} />
+            <Route path="/webdev/csslayouts" element={<ProtectedRoute><CSSLayout /></ProtectedRoute>} />
+            <Route path="/webdev/dom" element={<ProtectedRoute><DOM /></ProtectedRoute>} />
+            <Route path="/webdev/finalproject" element={<ProtectedRoute><FinalProject /></ProtectedRoute>} />
+            <Route path="/webdev/introtobackend" element={<ProtectedRoute><IntroToBackend /></ProtectedRoute>} />
+            <Route path="/webdev/jsfund" element={<ProtectedRoute><JSFund /></ProtectedRoute>} />
 
           </Routes>
         </div>
