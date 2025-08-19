@@ -17,11 +17,10 @@ const CourseAccordionItem = ({ course }) => {
     // Hook
     const navigate = useNavigate();
 
-    // Handles the accordions visibility and fetches modules on open
     const handleToggle = async () => {
         const newIsOpen = !isOpen;
         setIsOpen(newIsOpen);
-        // Fetch modules only if the accordion is being opened and modules havent been loaded yet
+
         if (newIsOpen && modules.length === 0) {
             setIsLoading(true);
             try {
@@ -37,7 +36,6 @@ const CourseAccordionItem = ({ course }) => {
         }
     };
 
-    // Determines correct navigation path for a given module name
     const getModulePath = (moduleName) => {
         const lowerModuleName = moduleName.toLowerCase();
 
@@ -83,7 +81,6 @@ const CourseAccordionItem = ({ course }) => {
                         <ul>
                             {modules.length > 0 ? (
                                 modules.map(module => (
-                                    // When a module is clicked, navigate to its page
                                     <li key={module.module_id} onClick={() => navigate(getModulePath(module.module_name))}>
                                         {module.module_name}
                                     </li>
@@ -118,20 +115,14 @@ const CalendarWidget = () => (
     </div>
 );
 
-/*
-    --- Courses: Main Page ---
-    The main component that displays the users programme info and enrolled courses
-*/
 const Courses = () => {
     // States
     const [courses, setCourses] = useState([]);
     const [error, setError] = useState('');
-
     // Hooks
     const navigate = useNavigate();
     const { user, logout } = useAuth();
-
-    // Static information about the users programme
+    // Hardcoded information about the users programme
     const programmeInfo = [
         { icon: <FaQuestionCircle />, title: 'Programme Level', content: 'BSc - Year 2' },
         { icon: <FaFileAlt />, title: 'Programme Information', content: 'TBC' },
@@ -157,7 +148,6 @@ const Courses = () => {
         }
     }, [user]);
 
-    // Handles user logout, and re-directs them to login page
     const handleLogout = () => {
         logout();
         navigate('/login');
@@ -172,7 +162,7 @@ const Courses = () => {
                     <div className="d-flex align-items-center text-white">
                         <FaBell className="me-3" />
                         <FaUserCircle className="me-2" />
-                        <span>{user?.firstName || 'User'}</span> {/* Get name from context */}
+                        <span>{user?.firstName || 'User'}</span>
                         <button className="btn btn-outline-light btn-sm ms-3" onClick={handleLogout}>
                             <FaSignOutAlt className="me-1" /> Logout
                         </button>
@@ -191,7 +181,7 @@ const Courses = () => {
                         />
                     </aside>
 
-                    {/* main content column */}
+                    {/* Main content column */}
                     <main className="col-lg-8">
                         <section className="content-section">
                             <div className="section-header">My Programme</div>
@@ -208,7 +198,7 @@ const Courses = () => {
                             </div>
                         </section>
 
-                        {/* course overview section */}
+                        {/* Course overview section */}
                         <section className="content-section">
                             <div className="section-header">Course Overview</div>
                             <div className="section-body p-0">
@@ -224,7 +214,7 @@ const Courses = () => {
                         </section>
                     </main>
 
-                    {/* right sidebar with widgets */}
+                    {/* Right sidebar with widgets */}
                     <aside className="col-lg-3">
                         <CalendarWidget />
                         <div className="sidebar-widget">

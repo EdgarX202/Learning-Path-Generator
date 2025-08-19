@@ -35,16 +35,12 @@ import JSFund from './courses/WebDevMod/JSFund.jsx';
 // --- Helper component for protected routes ---
 // Acts as a gatekeeper for pages that require a user to be logged in
 const ProtectedRoute = ({ children }) => {
-    // Get the current user AND the loading state from the context
     const { user, loading } = useAuth();
 
-    // If its still loading, show a simple loading message.
-    // This prevents the redirect from happening. Check the user first.
     if (loading) {
         return <div>Loading session...</div>;
     }
 
-    // Check the user
     if (!user) {
         // If there is no user, redirect to the login page.
         return <Navigate to="/login" />;
@@ -54,7 +50,7 @@ const ProtectedRoute = ({ children }) => {
     return children;
 };
 
-// --- Main Application Component ---
+// --- Main Application  ---
 function App() {
   return (
       // AuthContext wraps the entire app, so that the user's session data was available to all components inside

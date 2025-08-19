@@ -9,5 +9,4 @@ const CodingStandards = () => {
     );
 };
 
-// You need to add this line to the bottom of the file
 export default CodingStandards;

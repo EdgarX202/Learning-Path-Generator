@@ -36,7 +36,7 @@ except Exception as e:
 # --- File Upload Configuration ---
 UPLOAD_FOLDER = 'uploads'
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
-os.makedirs(UPLOAD_FOLDER, exist_ok=True)
+os.makedirs(UPLOAD_FOLDER, exist_ok=True) # Check if folder exist
 
 # --- MySQL Database Configuration ---
 db_config = {
@@ -219,11 +219,11 @@ def delete_note(note_id):
 def upload_file():
     """ Upload files to the database """
     if 'file' not in request.files:
-        return jsonify({"error": "No file part"}), 400
+        return jsonify({"error": "No file"}), 400
 
     file = request.files['file']
     if file.filename == '':
-        return jsonify({"error": "No selected file"}), 400
+        return jsonify({"error": "No file selected"}), 400
 
     module_id = request.form.get('moduleId')
     week_title = request.form.get('weekTitle')
@@ -279,11 +279,13 @@ def get_files():
 
 @app.route('/uploads/<filename>')
 def uploaded_file(filename):
+    """ Request file by name """
     return send_from_directory(app.config['UPLOAD_FOLDER'], filename)
 
 
 @app.route('/api/files/<int:file_id>', methods=['DELETE'])
 def delete_file(file_id):
+    """ Delete file from the system and database """
     conn = None
     cursor = None
     try:

@@ -45,8 +45,6 @@ const CalendarWidget = () => (
 const SoftEng = () => {
     const location = useLocation();
     const navigate = useNavigate();
-
-    // Get user data from navigation state to display name in navbar
     const { firstName } = location.state || {};
 
     const handleLogout = () => {

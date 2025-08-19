@@ -18,7 +18,6 @@ const Login = () => {
         event.preventDefault();
         setError('');
 
-        // try/catch for handling any network errors
         try {
             // Send a POST request to the backend API with users credentials
             const response = await fetch('http://127.0.0.1:5001/api/login', {
@@ -27,7 +26,6 @@ const Login = () => {
                 body: JSON.stringify({ username, password }),
             });
 
-            // Parse JSON response from the server
             const data = await response.json();
 
             if (response.ok) {

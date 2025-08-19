@@ -62,7 +62,7 @@ const ColourNotesWidget = ({ moduleId }) => {
             });
             const data = await response.json();
             if (response.ok) {
-                // Add the new note to the top of the list for immediate feedback
+                // Add the new note to the top of the list
                 setNotes([{ note_id: data.note_id, content: newNote, color: selectedColor }, ...notes]);
                 setNewNote('');
             } else {
@@ -81,7 +81,7 @@ const ColourNotesWidget = ({ moduleId }) => {
                     method: 'DELETE',
                 });
                 if (response.ok) {
-                    // Remove the note from the state for immediate feedback
+                    // Remove the note from the state
                     setNotes(notes.filter(note => note.note_id !== noteId));
                     setError('');
                 } else {
@@ -171,7 +171,7 @@ const ResultAccordionItem = ({ module }) => {
 // --- LEARNING PATH WIDGET ---
 const LearningPathWidget = ({ moduleId }) => {
     // Hooks
-    const { user } = useAuth(); // Get the logged-in user context
+    const { user } = useAuth();
     // States
     const [difficulty, setDifficulty] = React.useState('Beginner');
     const [language, setLanguage] = React.useState('JavaScript');
@@ -179,7 +179,7 @@ const LearningPathWidget = ({ moduleId }) => {
     const [isLoading, setIsLoading] = React.useState(false);
     const [error, setError] = React.useState('');
 
-    // --- UPDATED: useEffect to load path from DATABASE ---
+    // Load path from the database
     React.useEffect(() => {
         const loadPathFromDb = async () => {
             if (user?.userId && moduleId) {
@@ -198,7 +198,7 @@ const LearningPathWidget = ({ moduleId }) => {
             }
         };
         loadPathFromDb();
-    }, [moduleId, user]); // Dependency on user and module
+    }, [moduleId, user]);
 
     // Generate button functionality
     const handleGenerate = async () => {
@@ -210,7 +210,7 @@ const LearningPathWidget = ({ moduleId }) => {
         setError('');
 
         try {
-            // 1. Generate the new path
+            // Generate a new path
             const genResponse = await fetch('http://127.0.0.1:5001/api/generate-path', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
@@ -225,7 +225,7 @@ const LearningPathWidget = ({ moduleId }) => {
 
             setPathData(genData);
 
-            // 2. Save the newly generated path to the database
+            // Save the generated path to the database
             await fetch('http://127.0.0.1:5001/api/save-path', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
@@ -315,7 +315,7 @@ const FileUpload = ({ moduleId, weekTitle, fileType, onUploadSuccess }) => {
             setMessage('Please select a file first.');
             return;
         }
-        // Use of formData for sending the file as a multi-part data
+
         const formData = new FormData();
         formData.append('file', file);
         formData.append('moduleId', moduleId);
@@ -323,7 +323,6 @@ const FileUpload = ({ moduleId, weekTitle, fileType, onUploadSuccess }) => {
         formData.append('fileType', fileType);
 
         try {
-            // POST request to the upload API
             const response = await fetch('http://127.0.0.1:5001/api/upload', {
                 method: 'POST',
                 body: formData,
@@ -331,7 +330,7 @@ const FileUpload = ({ moduleId, weekTitle, fileType, onUploadSuccess }) => {
             const data = await response.json();
             if (response.ok) {
                 setMessage(`Success: ${data.filename} uploaded.`);
-                onUploadSuccess(); // Callback to notify the parent component
+                onUploadSuccess();
                 setFile(null); // Reset file input
             } else {
                 setMessage(`Error: ${data.error}`);
@@ -360,18 +359,17 @@ const FileUpload = ({ moduleId, weekTitle, fileType, onUploadSuccess }) => {
 const SubAccordionItem = ({ title, children, moduleId, weekTitle }) => {
     // States
     const [isOpen, setIsOpen] = useState(false);
-    const [files, setFiles] = useState([]); // Stores the list of files for this specific item
+    const [files, setFiles] = useState([]);
     const { user } = useAuth();
     const toggleOpen = () => setIsOpen(!isOpen);
-    const [refreshTrigger, setRefreshTrigger] = useState(0); // Counter for triggering re-fetch of data
-    // Callback function to be passed to the FileUpload component. Increments the trigger.
+    const [refreshTrigger, setRefreshTrigger] = useState(0);
     const handleUploadSuccess = () => setRefreshTrigger(t => t + 1);
 
     // Fetches files when the accordion is opened or after a file upload/delete
     useEffect(() => {
         const refreshFiles = async () => {
             try {
-                // Fetch files. weekTitle is encoded to handle special characters ('&')
+                // weekTitle is encoded to handle special characters ('&')
                 const response = await fetch(`http://127.0.0.1:5001/api/files?moduleId=${moduleId}&weekTitle=${encodeURIComponent(weekTitle)}`);
                 const data = await response.json();
                 if(response.ok) {
@@ -447,7 +445,7 @@ const SubAccordionItem = ({ title, children, moduleId, weekTitle }) => {
 const WeekAccordionItem = ({ topic, startOpen = false, moduleId }) => {
     // States
     const [isOpen, setIsOpen] = useState(startOpen);
-    const [files, setFiles] = useState([]); // Manages files only for string-based content like 'Final Project'
+    const [files, setFiles] = useState([]);
     const { user } = useAuth();
     const toggleOpen = () => setIsOpen(!isOpen);
     const [refreshTrigger, setRefreshTrigger] = useState(0);
@@ -549,7 +547,7 @@ const WeekAccordionItem = ({ topic, startOpen = false, moduleId }) => {
 
 /*
     --- CALENDAR WIDGET ---
-    A hardcoded static calendar, no functionality integrated (for now).
+    A hardcoded static calendar, no functionality integrated
 */
 const CalendarWidget = () => (
     <div className="sidebar-widget">
@@ -567,16 +565,15 @@ const CalendarWidget = () => (
 );
 
 /*
-    --- INTRO: MAIN PAGE ---
-    The main page component for a specific module.
-    It orchestrates the entire layout, including header, weekly content accordions, and sidebar widgets.
+    --- MAIN PAGE ---
+    Layout of the page, header, weekly content accordions, and sidebar widgets
 */
 const Intro = () => {
     // Hooks
     const navigate = useNavigate();
     const { user, logout } = useAuth();
     // Unique identifier for this module (should be changed to dynamically assign ID through database)
-    const moduleId = "INTRO_SE"; // CHANGE FOR EACH MODULE
+    const moduleId = "INTRO_SE"; // HARDCODED - CHANGE FOR EACH MODULE
 
     // Handles user logout, and re-directs to login page
     const handleLogout = () => {
@@ -648,7 +645,7 @@ const Intro = () => {
             {/* TOP NAV BAR */}
             <nav className="navbar navbar-expand-lg navbar-dark bg-dark fixed-top">
                 <div className="container-fluid">
-                    <Link className="navbar-brand" to="/courses">Moodle AI</Link> {/* Link back to dashboard */}
+                    <Link className="navbar-brand" to="/courses">Moodle AI</Link>
                     <div className="d-flex align-items-center text-white">
                         <FaBell className="me-3" />
                         <FaUserCircle className="me-2" />
@@ -661,25 +658,25 @@ const Intro = () => {
             </nav>
 
             {/* MAIN CONTENT AREA */}
-            <div className="page-content"> {/* Wrapper for main content */}
+            <div className="page-content">
                 <div className="container-fluid p-4" style={{ marginTop: '56px' }}>
                     <div className="row">
-                        {/* left sidebar image */}
+                        {/* Left sidebar image */}
                         <aside className="d-none d-lg-block col-lg-1">
                             <img
                                 src="../../public/21.jpg"
-                                alt="Some Image"
+                                alt="Left Banner"
                                 className="left-sidebar-image"
                             />
                             </aside>
 
-                        {/* main content column with weekly accordions */}
+                        {/* Main content column with weekly accordions */}
                         <main className="col-lg-8">
                              <div className="module-title-header">
                                 <FaCode className="icon" />
                                 <h2 className="mb-0">Introduction to the Software Lifecycle</h2>
                             </div>
-                            {/* dynamically create an accordion for each topic in the data structure */}
+                            {/* Dynamically create an accordion for each topic in the data structure */}
                             {weeklyTopics.map((topic, index) => (
                                 <WeekAccordionItem key={index} topic={topic} startOpen={index === 0} moduleId={moduleId} />
                             ))}

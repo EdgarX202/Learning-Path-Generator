@@ -18,7 +18,7 @@ export const AuthProvider = ({ children }) => {
             }
         } catch (error) {
             console.error("Failed to parse saved user from localStorage", error);
-            // If there's an error (e.g., corrupted data), clear it
+            // If there's an error, clear it
             localStorage.removeItem('user');
         } finally {
             setLoading(false);
@@ -46,7 +46,7 @@ export const AuthProvider = ({ children }) => {
     return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 };
 
-// Custom hook to use the auth context easily in other components
+// Custom hook to use the auth context in other places
 export const useAuth = () => {
     return useContext(AuthContext);
 };
