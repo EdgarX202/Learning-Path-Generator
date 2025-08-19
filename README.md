@@ -15,11 +15,13 @@ Project: Creating a Learning Path Generator (LPG) and integrating it into the mo
 <br>
 <br>
 <strong>The Website: </strong>
-Built using Python + Flask + React
+Built using Python/Flask + React/JavaScript
 <br>
 <br>
 <strong>The AI agent:</strong>
-Local Ollama (Llama3) model. Offline for development purposes. Use ChatGPT/Gemini/Deepseek API keys for online access if in production.
+Local Ollama (Llama3) model. Offline (local) for development purposes. Use ChatGPT/Gemini/Deepseek API keys for online access if in production.
 <br>
 <br>
+<img src='https://github.com/EdgarX202/Masters-Project/blob/master/MoodleAI/LPG.gif' width='400'>
+
 © 2025 Edgar Park | Edinburgh Napier University. All Rights Reserved.
