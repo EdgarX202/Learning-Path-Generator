@@ -1,0 +1,47 @@
+*/ MOODLE AI - An AI-Powered Learning Path Generator /*
+
+Technologies used:
+	- Backend: Flask, Python, MySQL
+	- Frontend: React, Vite, Bootstrap
+	- AI/LLM: Ollama (Llama3)
+	- Database: MySQL
+	- PDF Processing: PyMuPDF
+
+Prerequisites.
+Before running the project, you need to have the following installed on your system:
+	- Python 3.8+
+	- Node.js & npm (or yarn)
+	- MySQL Server
+	- Ollama: The application must be installed and running. You also need to have the Llama3 model pulled by running "ollama pull llama3" in your terminal.
+
+Setup.
+Follow these steps to get the project up and running on your local machine:
+	1. Database
+		- Start your MySQL server.
+		- Create a new database named "university_db".
+		- Execute the SQL script from "university_db.sql" to create the necessary tables and populate them with initial data.
+	
+	2. Backend (Flask)
+		- Navigate to the backend folder directory in your terminal.
+		- Create a Python virtual environment: "python -m venv .venv".
+		- Activate the virtual environment: ".venv\Scripts\activate".
+		- Install the required Python packages from requirements.txt: "pip install -r requirements.txt".
+		- Create a ".env" file in the backend directory and add your database and Ollama configuration:
+			+ Your app.py is configured to connect to a local Ollama instance and uses root for the database user with no password.
+			+ If your MySQL setup is different, you will need to modify the "db_config" dictionary in app.py or use environmental variables.
+
+	3. Frontend (React)
+		- Navigate to the frontend directory in a new terminal window.
+		- Install the Node.js dependencies: "npm install".
+
+	4. Run the application
+	   You will need to run both the backend and frontend concurrently.
+		- Start the Flask Backend.
+			+ Make sure your virtual environment is active in the backend directory.
+			+ Run the Flask development server: "flask run --port=5001" or "python app.py"
+			+ The API will be available at http://localhost:5001.
+		
+		- Start the React Frontend.
+			+ Make sure you are in the frontend directory.
+			+ Run the Vite development server: "npm run dev".
+			+ The application will be available in your browser at http://localhost:5173 (or a similar port)
