@@ -9,17 +9,13 @@ Project: Creating a Learning Path Generator (LPG) and integrating it into the mo
 <br>
 <strong>Research Question:</strong>
  - How can personalised learning paths affect undergraduate student engagement and learning effetiveness in tech courses(e.g. software development)?<br>
- <br>
-   1. How can the benefits differ between theoretical and practical courses within universities technology curriculum?<br>
-   2. To what extent can personalised learning path system accurately reccomend learning resources and predict student mastery in specific topics, based on course content?
-<br>
 <br>
 <strong>The Website: </strong>
 Built using Python/Flask + React/JavaScript
 <br>
 <br>
 <strong>The AI agent:</strong>
-Local Ollama (Llama3) model. Offline (local) for development purposes. Use ChatGPT/Gemini/Deepseek API keys for online access if in production.
+Local Ollama (Llama3) model. Offline (local) for development purposes.
 <br>
 <br>
 <img src='https://github.com/EdgarX202/Masters-Project/blob/master/MoodleAI/LPG.gif' width='400'>
