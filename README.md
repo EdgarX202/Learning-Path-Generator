@@ -1,4 +1,8 @@
 # Masters-Project
+
+[![Build](https://github.com/EdgarX202/Learning-Path-Generator/actions/workflows/main.yml/badge.svg)](https://github.com/EdgarX202/Learning-Path-Generator/actions/workflows/main.yml)
+![GitHub License](https://img.shields.io/github/license/EdgarX202/Learning-Path-Generator)
+
 Project: Creating a Learning Path Generator (LPG) and integrating it into the mock university website.<br>
 <br>
  <strong>Main Tasks</strong>:<br>
