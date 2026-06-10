@@ -1,4 +1,4 @@
-# Masters-Project
+# Edinburgh Napier University | PathMind AI
 
 [![Build](https://github.com/EdgarX202/Learning-Path-Generator/actions/workflows/main.yml/badge.svg)](https://github.com/EdgarX202/Learning-Path-Generator/actions/workflows/main.yml)
 ![GitHub License](https://img.shields.io/github/license/EdgarX202/Learning-Path-Generator)
